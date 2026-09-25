@@ -12,7 +12,8 @@ in the private repository; nothing here is built or bundled into the website.
 | `packages/cli/`         | `@toolars/cli` — a local stdio CLI and MCP server (hash, base64, JWT decode, UUID/ULID, timestamp, cron, URL encode/decode).                                                                                              |
 | `packages/local-tools/` | `@toolars/local-tools` — a smaller local stdio CLI and MCP server (JSON formatting, SHA-256).                                                                                                                             |
 
-All of it is MIT-licensed (see `LICENSE`).
+All of it is MIT-licensed (see `LICENSE`). `THIRD-PARTY.md` states the exact
+scope and lists third-party components.
 
 ## What is deliberately _not_ published
 
@@ -64,5 +65,5 @@ that repository's `SECURITY.md`.
 
 ## License
 
-MIT — see `LICENSE`. Third-party notices are listed there and in
+MIT — see `LICENSE`. Scope and third-party components: `THIRD-PARTY.md` and
 `evidence-harness/fixtures/PROVENANCE.md`.

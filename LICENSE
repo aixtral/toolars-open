@@ -19,18 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Third-party components
-
-- The evidence harness depends on Playwright (`@playwright/test`, Apache-2.0).
-  Playwright is installed from npm and is not vendored here.
-- `evidence-harness/fixtures/gradient-96x64.heic` is a synthetic 96x64 test
-  image. See `evidence-harness/fixtures/PROVENANCE.md`.
-
-This license covers the files in this directory and the two Node packages
-(`@toolars/cli`, `@toolars/local-tools`) that are published alongside it. It
-does not cover the Toolars website itself, its tool implementations, its
-editorial content, or its runtime assets, which remain separate and are not
-part of this distribution.

@@ -1,14 +1,15 @@
 # Toolars open-source distribution manifest
-# generated: 2026-09-25T08:30:52.378Z
-# files: 33
-# bytes: 169194
+# generated: 2026-09-25T08:31:23.824Z
+# files: 34
+# bytes: 169697
 # canonical harness: scripts/capture-privacy-proof.mjs
 # harness patches: usage-header, configuration-block, fixture-path, environment-description, harness-metadata, crypto-import
 
 a78f055390a5228a8ee2185acb4914d367adfe1985f52211a87fe03634c8a373  .gitignore
-fa07c0cf7d622407549e3a13f8bdb60114116d59b0a7d7699cc81338f6991147  LICENSE
-14d5a5f9f541c2da99180ed5f0433b1a03413f37263b97db6f0d631965bd9009  README.md
+b6db198713b0ef5eee33efdc00693e7e8d6837250fd0b7b362534ffb89f2ad81  LICENSE
+714028af7955c47b65af68f71b7aa0e08daa841e560705408deb60273844c14e  README.md
 3173b868cecd03ccfeb585ebd47da04171b500d75e52088a54dec257ea5ec2bd  SECURITY.md
+ab7d7ef05a05dd86b64d8861f97d03167f1a47ef56194e139f3fb462e6ed2a9d  THIRD-PARTY.md
 22ef1df044a41cc21f904d683cf09ebc4718eb3777c33a630cce00d36526d1c3  evidence-harness/README.md
 94dfaeabaf0ccf0ce211add8cd08bf41839fbe2693f4395d4ea6af69f9fa9cec  evidence-harness/capture-privacy-proof.mjs
 8ffec9b0178a40bb072935078c07b27105f85ac6f2578ec0d4c65c9d54a8df00  evidence-harness/fixtures/PROVENANCE.md
