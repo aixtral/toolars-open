@@ -5,18 +5,36 @@
 - **What it is:** a 635-byte HEIF image, 96×64, HEVC Main Still Picture profile,
   containing a synthetic gradient. It is used by the `image-tool-heic-convert`
   scenario to exercise the lazy libheif decoder path.
-- **Where it came from:** committed to the private Toolars repository on
-  2026-09-20 as a test fixture. The repository does not record how it was
-  produced.
-- **Rights status:** believed to be project-generated (synthetic gradient,
-  no identifiable subject, no metadata). **This has not been documented, and
-  documenting it is a release gate** — see `docs/operations/open-source-release-runbook-2026-09-25.md`,
-  gate G3.
-- **If provenance cannot be confirmed:** delete this file and make the HEIC
-  scenario opt-in, taking the file from the operator instead. Publishing a
-  binary whose rights you cannot account for is a small mistake with
-  disproportionate consequences for a project whose whole pitch is verifiable
-  honesty.
+- **Where it came from:** **generated programmatically inside the Toolars
+  repository.** The generation method is recorded in the two specs that consume
+  the fixture: `tests/e2e/heic-convert.spec.ts` and
+  `src/features/tool-runtime/image-local/heic/libheif-decode.test.ts` both state
+  that the fixtures are "synthetic images produced programmatically … a 96×64
+  gradient and the repo's own JPEG fixture with an injected EXIF orientation,
+  both encoded to HEIC with the platform HEVC encoder — no third-party content".
+- **Corroborating inspection** (performed when this file was published, because
+  the provenance statement lives in the specs rather than next to the fixture):
+  the file carries no camera maker note, no encoder or software signature, no
+  copyright field, and no `Exif` box at all; its `mdat` is only 210 bytes, which
+  is what a flat gradient compresses to; its `ispe` box reports 96×64. A
+  third-party photograph could not look like this.
+- **Rights status:** project-generated, no third-party content. Toolars
+  contributors' own file.
+
+## `heic/exif-orientation-6.heic`
+
+- **What it is:** a 6,192-byte HEIF image carrying an `Exif` box with orientation
+  value 6 plus a container-level `irot`, used to verify that decode applies
+  rotation.
+- **Where it came from:** the same programmatic path — **the repository's own
+  JPEG fixture with an injected EXIF orientation**, re-encoded to HEIC with the
+  platform HEVC encoder (see the two spec headers named above).
+- **Corroborating inspection:** the embedded `Exif` box and `irot` are present
+  and no encoder, camera, or copyright string accompanies them.
+- **Rights status:** project-generated from the repo's own JPEG fixture.
+- **Note:** this fixture is *not* part of the public distribution. The published
+  harness ships only `gradient-96x64.heic`, because only that one is used by the
+  HEIC scenario. See `scripts/export-open-source.mjs`.
 
 ## Generated at run time (not fixtures, not committed)
 
