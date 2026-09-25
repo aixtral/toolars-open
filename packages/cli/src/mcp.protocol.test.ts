@@ -2,6 +2,7 @@ import { PassThrough } from "node:stream";
 
 import { afterEach, describe, expect, it } from "vitest";
 
+import { HASH_ALGORITHMS } from "./core";
 import { createMcpServer } from "./mcp";
 
 /**
@@ -81,6 +82,30 @@ const INITIALIZE = {
 } as const;
 
 describe("MCP stdio server", () => {
+  it("keeps the original SHA-256 tool callable by existing clients", async () => {
+    const client = server();
+    client.send(INITIALIZE);
+    client.send({ jsonrpc: "2.0", method: "notifications/initialized" });
+    client.send({
+      jsonrpc: "2.0",
+      id: 2,
+      method: "tools/call",
+      params: { name: "toolars_hash_sha256", arguments: { text: "abc" } },
+    });
+    const { responses } = await client.finish();
+    expect(responses[1]).toMatchObject({
+      result: {
+        isError: false,
+        content: [
+          {
+            type: "text",
+            text: "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+          },
+        ],
+      },
+    });
+  });
+
   it("completes the handshake and lists all developer tools", async () => {
     const client = server();
     client.send(INITIALIZE);
@@ -101,6 +126,7 @@ describe("MCP stdio server", () => {
     });
     const tools = (list!.result as { tools: Record<string, unknown>[] }).tools;
     expect(tools.map((tool) => tool.name)).toEqual([
+      "toolars_hash",
       "toolars_hash_sha256",
       "toolars_base64_encode",
       "toolars_base64_decode",
@@ -137,8 +163,19 @@ describe("MCP stdio server", () => {
       id: 2,
       method: "tools/call",
       params: {
-        name: "toolars_hash_sha256",
+        name: "toolars_hash",
         arguments: { text: "abc" },
+      },
+    });
+    // Same tool, non-default algorithm: the enum is validated against the
+    // schema and the digest must equal the site's md5-hash-checker vector.
+    client.send({
+      jsonrpc: "2.0",
+      id: 20,
+      method: "tools/call",
+      params: {
+        name: "toolars_hash",
+        arguments: { text: "abc", algorithm: "md5" },
       },
     });
     client.send({
@@ -160,7 +197,7 @@ describe("MCP stdio server", () => {
       },
     });
     const { responses } = await client.finish();
-    const [, hash, base64, cron] = responses;
+    const [, hash, hashMd5, base64, cron] = responses;
 
     expect(hash!.result).toMatchObject({
       isError: false,
@@ -170,6 +207,10 @@ describe("MCP stdio server", () => {
           text: "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
         },
       ],
+    });
+    expect(hashMd5!.result).toMatchObject({
+      isError: false,
+      content: [{ type: "text", text: "900150983cd24fb0d6963f7d28e17f72" }],
     });
     expect(base64!.result).toMatchObject({
       content: [{ type: "text", text: "Zm9v" }],
@@ -216,14 +257,14 @@ describe("MCP stdio server", () => {
       jsonrpc: "2.0",
       id: 3,
       method: "tools/call",
-      params: { name: "toolars_hash_sha256", arguments: { text: 42 } },
+      params: { name: "toolars_hash", arguments: { text: 42 } },
     });
     client.send({
       jsonrpc: "2.0",
       id: 4,
       method: "tools/call",
       params: {
-        name: "toolars_hash_sha256",
+        name: "toolars_hash",
         arguments: { text: "x", surprise: true },
       },
     });
@@ -232,7 +273,7 @@ describe("MCP stdio server", () => {
       id: 5,
       method: "tools/call",
       params: {
-        name: "toolars_hash_sha256",
+        name: "toolars_hash",
         arguments: { wrong: "field" },
       },
     });
@@ -240,7 +281,16 @@ describe("MCP stdio server", () => {
       jsonrpc: "2.0",
       id: 6,
       method: "tools/call",
-      params: { name: "toolars_hash_sha256", arguments: {} },
+      params: { name: "toolars_hash", arguments: {} },
+    });
+    client.send({
+      jsonrpc: "2.0",
+      id: 7,
+      method: "tools/call",
+      params: {
+        name: "toolars_hash",
+        arguments: { text: "x", algorithm: "sha3-256" },
+      },
     });
     const { responses } = await client.finish();
     const errorMessage = (index: number): string =>
@@ -257,6 +307,14 @@ describe("MCP stdio server", () => {
     expect(errorMessage(4)).toContain("unexpected argument");
     expect(responses[5]).toMatchObject({ id: 6, error: { code: -32602 } });
     expect(errorMessage(5)).toContain("missing required argument");
+    expect(responses[6]).toMatchObject({ id: 7, error: { code: -32602 } });
+    // The enum is derived from the site's algorithm list, so the error names
+    // every supported digest instead of echoing the rejected input.
+    expect(errorMessage(6)).toContain("algorithm must be one of");
+    for (const algorithm of HASH_ALGORITHMS) {
+      expect(errorMessage(6)).toContain(algorithm);
+    }
+    expect(errorMessage(6)).not.toContain("sha3-256");
   });
 
   it("answers ping and rejects unknown methods", async () => {

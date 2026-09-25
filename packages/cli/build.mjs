@@ -1,4 +1,5 @@
 import { chmod, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import { build } from "esbuild";
@@ -7,7 +8,14 @@ import { build } from "esbuild";
 // pattern as packages/local-tools/build.mjs. The package itself ships zero
 // runtime dependencies: every site core it uses is bundled into dist/.
 const packageRoot = new URL("./", import.meta.url);
-const srcRoot = fileURLToPath(new URL("../../src", import.meta.url));
+// The workspace resolves "@" to the site sources two levels up. The exported
+// tree has no site sources, so it ships the exact closure this package needs
+// under vendor/ instead; both layouts resolve the same specifiers. Prefer the
+// vendored copy when present so an exported checkout builds unmodified.
+const vendoredRoot = fileURLToPath(new URL("vendor", packageRoot));
+const srcRoot = existsSync(vendoredRoot)
+  ? vendoredRoot
+  : fileURLToPath(new URL("../../src", import.meta.url));
 const { version } = JSON.parse(
   await readFile(new URL("./package.json", packageRoot), "utf8"),
 );

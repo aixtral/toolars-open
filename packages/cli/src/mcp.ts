@@ -1,17 +1,19 @@
-import { pathToFileURL } from "node:url";
-
 import type { TimeZoneOption } from "@/features/tool-runtime/time-tools/definitions";
 
+import { isMainEntry } from "./is-main-entry";
+
 import {
+  HASH_ALGORITHMS,
   MAX_IDENTIFIER_BATCH_COUNT,
   base64Transform,
   cronExplain,
   decodeJwtToken,
   generateIdentifiersOp,
-  hashSha256,
+  hashText,
   timestampConvert,
   urlTransform,
   type CoreResult,
+  type HashAlgorithm,
   type UrlOperation,
 } from "./core";
 import {
@@ -67,6 +69,19 @@ const textProperty: PropertySchema = {
   description: "UTF-8 text to process. Nothing is read from files or URLs.",
 };
 
+/**
+ * Mirrors the six digest tools the website ships. The default is SHA-256; MD5
+ * and SHA-1 are integrity-only legacy digests and are never signatures, which
+ * the tool description and the website label both state.
+ */
+const hashAlgorithmProperty: PropertySchema = {
+  type: "string",
+  description:
+    "Digest algorithm. MD5 and SHA-1 are legacy integrity-only checks and are never signatures.",
+  enum: HASH_ALGORITHMS,
+  default: "sha256",
+};
+
 const timeZoneProperty: PropertySchema = {
   type: "string",
   description: TIME_ZONE_DESCRIPTION,
@@ -88,14 +103,30 @@ const timeZoneProperty: PropertySchema = {
 function defineTools(now: () => number): readonly ToolDefinition[] {
   return [
     {
+      name: "toolars_hash",
+      description: `Compute the hex digest of UTF-8 text with any algorithm the Toolars hash-checker tools ship (md5, sha1, sha224, sha256, sha384, sha512). Defaults to sha256. Identical to the corresponding Toolars *-hash-checker web tools. MD5 and SHA-1 are integrity-only legacy digests, never signatures. ${LOCAL_NOTE}`,
+      inputSchema: {
+        type: "object",
+        properties: { text: textProperty, algorithm: hashAlgorithmProperty },
+        required: ["text"],
+      },
+      handler: (args) => {
+        const requested = args.algorithm as HashAlgorithm | undefined;
+        return hashText(args.text as string, requested ?? "sha256");
+      },
+      render: (data) => renderHash(data as never),
+      idempotent: true,
+    },
+    {
+      // Preserve existing clients when adding the multi-algorithm tool.
       name: "toolars_hash_sha256",
-      description: `Compute the SHA-256 hex digest of UTF-8 text, identical to the Toolars sha256-hash-checker web tool. ${LOCAL_NOTE}`,
+      description: `Compute a SHA-256 hex digest. Compatibility alias for toolars_hash with algorithm sha256. ${LOCAL_NOTE}`,
       inputSchema: {
         type: "object",
         properties: { text: textProperty },
         required: ["text"],
       },
-      handler: (args) => hashSha256(args.text as string),
+      handler: (args) => hashText(args.text as string, "sha256"),
       render: (data) => renderHash(data as never),
       idempotent: true,
     },
@@ -547,11 +578,7 @@ export async function createMcpServer(
   }
 }
 
-if (
-  __TOOLARS_CLI_ENTRY__ === "mcp" &&
-  typeof process.argv[1] === "string" &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
+if (__TOOLARS_CLI_ENTRY__ === "mcp" && isMainEntry(import.meta.url)) {
   createMcpServer({
     read: () => process.stdin,
     write: async (line) => {

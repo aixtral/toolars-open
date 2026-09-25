@@ -1,13 +1,13 @@
-import { pathToFileURL } from "node:url";
-
 import { createMcpServer } from "./mcp";
+import { isMainEntry } from "./is-main-entry";
 import {
+  HASH_ALGORITHMS,
   MAX_IDENTIFIER_BATCH_COUNT,
   base64Transform,
   cronExplain,
   decodeJwtToken,
   generateIdentifiersOp,
-  hashSha256,
+  hashText,
   timestampConvert,
   urlTransform,
   type CoreResult,
@@ -30,7 +30,7 @@ const VERSION: string = __TOOLARS_CLI_VERSION__;
 const USAGE = `toolars ${VERSION} — local-first developer utilities (https://toolars.com)
 
 Usage:
-  toolars hash --sha256 [text] [--json]
+  toolars hash [--md5|--sha1|--sha224|--sha256|--sha384|--sha512] [text] [--json]
   toolars base64 encode|decode [text] [--url-safe] [--json]
   toolars jwt decode <token> [--json]
   toolars uuid [--v7] [--count N] [--json]
@@ -47,7 +47,9 @@ byte control is not supported; pipe exact bytes without a trailing newline).
 
 All computation runs locally. No network calls, no telemetry. Output goes to
 stdout; stable error codes go to stderr with exit code 1; usage errors exit 2.
-jwt decode parses only — the signature is NEVER verified.`;
+hash defaults to --sha256; --md5 and --sha1 are integrity-only legacy digests
+and are never signatures. jwt decode parses only — the signature is NEVER
+verified.`;
 
 class UsageError extends Error {}
 
@@ -215,11 +217,28 @@ async function run(
 
   switch (command) {
     case "hash": {
-      if (!getBooleanFlag(flags, "sha256")) {
-        throw new UsageError("only --sha256 is currently supported");
+      const allowed = new Set<string>([...HASH_ALGORITHMS, "json"]);
+      for (const [name, value] of flags) {
+        if (!allowed.has(name) || value !== true) {
+          throw new UsageError(`unsupported hash option: --${name}`);
+        }
+      }
+      const requested = HASH_ALGORITHMS.filter((algorithm) =>
+        getBooleanFlag(flags, algorithm),
+      );
+      if (requested.length > 1) {
+        throw new UsageError(
+          `choose at most one algorithm (got ${requested
+            .map((algorithm) => `--${algorithm}`)
+            .join(", ")})`,
+        );
       }
       const input = await readTextInput(subcommand, stdin);
-      return emit(hashSha256(input), jsonMode, renderHash);
+      return emit(
+        hashText(input, requested[0] ?? "sha256"),
+        jsonMode,
+        renderHash,
+      );
     }
 
     case "base64": {
@@ -337,11 +356,7 @@ async function run(
   }
 }
 
-if (
-  __TOOLARS_CLI_ENTRY__ === "cli" &&
-  typeof process.argv[1] === "string" &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
+if (__TOOLARS_CLI_ENTRY__ === "cli" && isMainEntry(import.meta.url)) {
   run(process.argv.slice(2), process.stdin)
     .then((code) => {
       process.exitCode = code;

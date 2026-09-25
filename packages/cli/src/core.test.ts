@@ -1,16 +1,23 @@
 import { describe, expect, it } from "vitest";
 
+import {
+  HASH_TOOL_DEFINITIONS,
+  HASH_TOOL_SLUGS,
+} from "@/features/tool-runtime/hash/definitions";
 import { validateIdentifier } from "@/features/tool-runtime/identifier/identifier";
 import { parseJwtJson } from "@/features/tool-runtime/jwt/inspection";
 
 import {
+  HASH_ALGORITHMS,
   base64Transform,
   cronExplain,
   decodeJwtToken,
   generateIdentifiersOp,
   hashSha256,
+  hashText,
   timestampConvert,
   urlTransform,
+  type HashAlgorithm,
 } from "./core";
 
 // Parity vectors are copied from the website runtime test suites so the CLI
@@ -58,6 +65,67 @@ describe("hashSha256", () => {
 
   it("rejects unpaired surrogates like the site runtime", () => {
     expect(hashSha256("\ud800")).toEqual({
+      ok: false,
+      code: "INVALID_UNICODE_INPUT",
+    });
+  });
+});
+
+describe("hashText parity with the website hash tools", () => {
+  // The site executor writes the same six digests for the input "abc"; see
+  // src/features/tool-runtime/hash/executor.test.ts (ABC_DIGESTS).
+  const ABC_DIGESTS: Record<HashAlgorithm, string> = {
+    md5: "900150983cd24fb0d6963f7d28e17f72",
+    sha1: "a9993e364706816aba3e25717850c26c9cd0d89d",
+    sha224: "23097d223405d8228642a477bda255b32aadbce4bda0b3f7e36c9da7",
+    sha256: "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    sha384:
+      "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7",
+    sha512:
+      "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
+  };
+
+  it("covers exactly the algorithms the website ships, with matching digests", () => {
+    // Derived from the catalog rather than hardcoded, so adding or removing a
+    // hash tool on the website fails here until the CLI follows.
+    const siteAlgorithms = HASH_TOOL_SLUGS.map(
+      (slug) => HASH_TOOL_DEFINITIONS[slug].algorithm,
+    );
+    expect([...HASH_ALGORITHMS].sort()).toEqual([...siteAlgorithms].sort());
+
+    for (const slug of HASH_TOOL_SLUGS) {
+      const definition = HASH_TOOL_DEFINITIONS[slug];
+      expect(
+        hashText(definition.sampleInput, definition.algorithm),
+        `${slug} sample digest`,
+      ).toEqual({
+        ok: true,
+        data: {
+          algorithm: definition.algorithm,
+          digest: definition.sampleDigest,
+          inputByteLength: new TextEncoder().encode(definition.sampleInput)
+            .byteLength,
+        },
+      });
+    }
+  });
+
+  it("matches the site executor vectors for every algorithm", () => {
+    for (const algorithm of HASH_ALGORITHMS) {
+      expect(hashText("abc", algorithm), algorithm).toEqual({
+        ok: true,
+        data: {
+          algorithm,
+          digest: ABC_DIGESTS[algorithm],
+          inputByteLength: 3,
+        },
+      });
+    }
+  });
+
+  it("defaults to sha256 and shares its input validation", () => {
+    expect(hashText("Toolars")).toEqual(hashText("Toolars", "sha256"));
+    expect(hashText("\ud800", "sha512")).toEqual({
       ok: false,
       code: "INVALID_UNICODE_INPUT",
     });

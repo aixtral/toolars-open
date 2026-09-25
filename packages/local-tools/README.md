@@ -1,21 +1,34 @@
 # Toolars local tools — private, MIT-licensed experiment
 
-An internal experiment, not published to npm; `private: true` keeps it that way,
-while the source is MIT-licensed (see `LICENSE`). The package has no runtime
+An internal experiment, not published to npm; `private: true` keeps it that way
+and is the owner's publication switch, while the source is MIT-licensed (see
+`LICENSE`). The package has no runtime
 third-party dependencies and contains no website, account, network service, or
 telemetry.
 
 ## Local usage
 
-Requires Node `>=24.15.0 <25`. Build and pack from the Toolars `sites/` root
-(the existing project dependencies are required):
+Requires Node `>=24.15.0 <25`. The package runs directly from a checkout with no
+build step: `bin` targets `src/cli.mjs`, and the generated `src/json-core.mjs`
+is committed.
+
+**Rebuilding** works in either layout: `build.mjs` regenerates
+`src/json-core.mjs` from the site's `native-coding/json-tree.ts`, preferring the
+`vendor/` copy the public tree ships over the workspace sources two levels up.
 
 ```sh
+# public tree (declares esbuild + prettier as devDependencies)
+npm install && node build.mjs && node --test test/*.test.mjs
+
+# workspace root (uses the existing project dependencies)
 node packages/local-tools/build.mjs
 node --test packages/local-tools/test/*.test.mjs
 cd packages/local-tools
 npm pack --pack-destination /tmp
 ```
+
+Rebuilding changes one comment line in the generated `src/json-core.mjs` when
+the input came from `vendor/` rather than the workspace; the code is unchanged.
 
 Packing generates the in-package JSON core from the site's
 `native-coding/json-tree.ts`. The installed package needs no access to the
@@ -72,6 +85,15 @@ path on your machine:
   }
 }
 ```
+
+#### `toolars-mcp` is also `@toolars/cli`'s bin name
+
+Both packages install an executable named `toolars-mcp`. If a single
+`node_modules` holds both, there is only one `node_modules/.bin/toolars-mcp`
+symlink and it points at whichever package was installed last; nothing resolves
+it per package. When both are installed, prefer the explicit path shown above
+over the bare bin name. `toolars-local` does not collide with anything. The
+package is not on npm yet.
 
 Only protocol `2025-11-25` is supported. Send `initialize` first, confirm the
 returned version is acceptable, then send `notifications/initialized`; the

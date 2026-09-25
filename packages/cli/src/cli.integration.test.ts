@@ -1,9 +1,13 @@
 import { spawn } from "node:child_process";
+import { mkdtemp, rm, symlink } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
 const CLI_PATH = fileURLToPath(new URL("../dist/cli.mjs", import.meta.url));
+const MCP_PATH = fileURLToPath(new URL("../dist/mcp.mjs", import.meta.url));
 
 interface CliOutcome {
   code: number;
@@ -11,9 +15,13 @@ interface CliOutcome {
   stderr: string;
 }
 
-function runCli(args: readonly string[], input = ""): Promise<CliOutcome> {
+function runEntry(
+  entry: string,
+  args: readonly string[],
+  input = "",
+): Promise<CliOutcome> {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [CLI_PATH, ...args], {
+    const child = spawn(process.execPath, [entry, ...args], {
       stdio: ["pipe", "pipe", "pipe"],
     });
     let stdout = "";
@@ -35,7 +43,21 @@ function runCli(args: readonly string[], input = ""): Promise<CliOutcome> {
   });
 }
 
+function runCli(args: readonly string[], input = ""): Promise<CliOutcome> {
+  return runEntry(CLI_PATH, args, input);
+}
+
 describe("toolars CLI (integration, spawns the built bin)", () => {
+  it.each(["--sha25", "--md5=true", "--algorithm=md5", "--json=false"])(
+    "rejects unsupported hash option %s instead of computing a different digest",
+    async (flag) => {
+      const outcome = await runCli(["hash", flag, "abc"]);
+      expect(outcome.code).toBe(2);
+      expect(outcome.stdout).toBe("");
+      expect(outcome.stderr).toContain("unsupported hash option");
+    },
+  );
+
   it("prints the version", async () => {
     const outcome = await runCli(["--version"]);
     expect(outcome.code).toBe(0);
@@ -131,8 +153,93 @@ describe("toolars CLI (integration, spawns the built bin)", () => {
     expect(outcome.stderr).toContain("USAGE_ERROR");
   });
 
-  it("fails hash without --sha256", async () => {
-    const outcome = await runCli(["hash", "abc"]);
+  it("defaults hash to sha256 and accepts every algorithm flag", async () => {
+    const allAlgorithms = [
+      ["--md5", "900150983cd24fb0d6963f7d28e17f72"],
+      ["--sha1", "a9993e364706816aba3e25717850c26c9cd0d89d"],
+      ["--sha224", "23097d223405d8228642a477bda255b32aadbce4bda0b3f7e36c9da7"],
+      [
+        "--sha256",
+        "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+      ],
+      [
+        "--sha384",
+        "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7",
+      ],
+      [
+        "--sha512",
+        "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
+      ],
+    ] as const;
+
+    for (const [flag, digest] of allAlgorithms) {
+      const outcome = await runCli(["hash", flag, "abc"]);
+      expect(outcome.code, flag).toBe(0);
+      expect(outcome.stdout.trim(), flag).toBe(digest);
+    }
+
+    // No algorithm flag means sha256, identical to the explicit flag.
+    const implicit = await runCli(["hash", "abc"]);
+    expect(implicit.code).toBe(0);
+    expect(implicit.stdout.trim()).toBe(allAlgorithms[3]![1]);
+  });
+
+  it("rejects more than one hash algorithm flag", async () => {
+    const outcome = await runCli(["hash", "--md5", "--sha1", "abc"]);
     expect(outcome.code).toBe(2);
+    expect(outcome.stderr).toContain("choose at most one algorithm");
+  });
+
+  // `node_modules/.bin/*`, `npx` and a global install all invoke the entry
+  // through a symlink. Node resolves the main module, so a guard comparing
+  // `import.meta.url` against the raw `process.argv[1]` is false there and the
+  // process exits 0 with no output — indistinguishable from success.
+  it("executes when invoked through a symlink, as package managers do", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "toolars-cli-bin-"));
+    try {
+      const cliLink = join(dir, "toolars");
+      await symlink(CLI_PATH, cliLink);
+
+      const version = await runEntry(cliLink, ["--version"]);
+      expect(version.code).toBe(0);
+      expect(version.stdout.trim()).toMatch(/^\d+\.\d+\.\d+$/u);
+
+      const hash = await runEntry(cliLink, ["hash", "--md5", "abc"]);
+      expect(hash.code).toBe(0);
+      expect(hash.stdout.trim()).toBe("900150983cd24fb0d6963f7d28e17f72");
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("answers an MCP handshake when invoked through a symlink", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "toolars-mcp-bin-"));
+    try {
+      const mcpLink = join(dir, "toolars-mcp");
+      await symlink(MCP_PATH, mcpLink);
+
+      const outcome = await runEntry(
+        mcpLink,
+        [],
+        `${JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "initialize",
+          params: {
+            protocolVersion: "2025-11-25",
+            capabilities: {},
+            clientInfo: { name: "test", version: "1" },
+          },
+        })}\n`,
+      );
+
+      expect(outcome.code).toBe(0);
+      const response = JSON.parse(outcome.stdout.trim()) as {
+        result?: { serverInfo?: { name?: string } };
+      };
+      expect(response.result?.serverInfo?.name).toBe("toolars-cli");
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 });

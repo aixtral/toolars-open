@@ -26,17 +26,37 @@ import { transformTextValue } from "@/features/tool-runtime/text/executor";
  *
  * Everything here reuses the pure function cores of the browser runtimes in
  * `src/features/tool-runtime/` so CLI, MCP server, and website stay behavior
- * identical. The only intentionally local implementation is SHA-256: the site
- * runtime is coupled to hash-wasm workers and File blobs, so the CLI uses
- * `node:crypto` and pins the site's published test vectors in core.test.ts.
+ * identical. The only intentionally local implementation is the hash family:
+ * the site runtime is coupled to hash-wasm workers and File blobs, so the CLI
+ * uses `node:crypto` and pins the site's published test vectors in
+ * core.test.ts. Those vectors live beside the browser tools in
+ * `src/features/tool-runtime/hash/definitions.ts`; adding an algorithm there
+ * without adding it here fails the parity test.
  */
 
 export type CoreResult<TData> = Readonly<
   { ok: true; data: TData } | { ok: false; code: string }
 >;
 
+/**
+ * Every digest algorithm the website ships as a tool. Kept in the same order as
+ * `HASH_TOOL_SLUGS` so the CLI, the MCP `algorithm` enum, and the site catalog
+ * read identically. MD5 and SHA-1 are integrity-only legacy algorithms; the
+ * website labels them the same way and neither is a signature.
+ */
+export const HASH_ALGORITHMS = [
+  "md5",
+  "sha1",
+  "sha224",
+  "sha256",
+  "sha384",
+  "sha512",
+] as const;
+
+export type HashAlgorithm = (typeof HASH_ALGORITHMS)[number];
+
 export type HashOutput = Readonly<{
-  algorithm: "sha256";
+  algorithm: HashAlgorithm;
   digest: string;
   inputByteLength: number;
 }>;
@@ -72,11 +92,29 @@ function utf8Bytes(value: string): Uint8Array {
   return new TextEncoder().encode(value);
 }
 
-export function hashSha256(text: string): CoreResult<HashOutput> {
+export function isHashAlgorithm(value: string): value is HashAlgorithm {
+  return (HASH_ALGORITHMS as readonly string[]).includes(value);
+}
+
+/**
+ * Hex digest of UTF-8 text for any algorithm the website ships. Byte-for-byte
+ * the same input handling as the browser runtime: the input is encoded as
+ * UTF-8 exactly once, a lone surrogate is rejected rather than replaced, and
+ * one trailing stdin line break has already been stripped by the caller.
+ */
+export function hashText(
+  text: string,
+  algorithm: HashAlgorithm = "sha256",
+): CoreResult<HashOutput> {
   if (!text.isWellFormed()) return err("INVALID_UNICODE_INPUT");
   const bytes = utf8Bytes(text);
-  const digest = createHash("sha256").update(bytes).digest("hex");
-  return ok({ algorithm: "sha256", digest, inputByteLength: bytes.byteLength });
+  const digest = createHash(algorithm).update(bytes).digest("hex");
+  return ok({ algorithm, digest, inputByteLength: bytes.byteLength });
+}
+
+/** SHA-256 shorthand kept for callers that only need the default algorithm. */
+export function hashSha256(text: string): CoreResult<HashOutput> {
+  return hashText(text, "sha256");
 }
 
 export function base64Transform(

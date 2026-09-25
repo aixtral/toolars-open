@@ -6,9 +6,16 @@
 under `evidence-harness/`, and the two Node packages `@toolars/cli` and
 `@toolars/local-tools`.
 
+That includes two things worth naming. `packages/cli/dist/` is a prebuilt
+bundle that inlines compiled copies of the website runner cores the CLI reuses,
+because it is the same artifact `@toolars/cli` publishes to npm.
+`packages/*/vendor/` holds the source form of those cores — the exact closure
+each package needs to rebuild and re-test itself here. Both are covered.
+
 It does **not** cover the Toolars website itself — its application code, tool
 implementations, Web Workers, editorial content, localized content sets, or
-runtime assets. Those remain separate and are not part of this distribution.
+runtime assets. Those remain separate, and apart from the `vendor/` closures
+above are not part of this distribution.
 
 ## Third-party components
 

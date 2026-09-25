@@ -1,6 +1,14 @@
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import { defineConfig } from "vitest/config";
+
+// Same dual layout as build.mjs: the workspace resolves "@" to the site sources
+// two levels up, while the exported tree ships the closure under vendor/.
+const vendoredRoot = fileURLToPath(new URL("vendor", import.meta.url));
+const srcRoot = existsSync(vendoredRoot)
+  ? vendoredRoot
+  : fileURLToPath(new URL("../../src", import.meta.url));
 
 export default defineConfig({
   // Pin the project root so the include globs resolve to this package's src
@@ -8,7 +16,7 @@ export default defineConfig({
   root: fileURLToPath(new URL(".", import.meta.url)),
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("../../src", import.meta.url)),
+      "@": srcRoot,
     },
   },
   define: {

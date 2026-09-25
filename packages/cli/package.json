@@ -2,6 +2,7 @@
   "name": "@toolars/cli",
   "version": "0.1.0",
   "private": true,
+  "description": "Local-first developer CLI and stdio MCP server for Toolars: hash, Base64, JWT decode, UUID/ULID, timestamp, cron and URL encode/decode. Zero runtime dependencies, no network access, no telemetry.",
   "license": "MIT",
   "type": "module",
   "engines": {
@@ -15,8 +16,41 @@
     "dist",
     "README.md"
   ],
+  "keywords": [
+    "toolars",
+    "cli",
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "stdio",
+    "local-first",
+    "privacy",
+    "developer-tools",
+    "hash",
+    "base64",
+    "jwt",
+    "uuid",
+    "ulid",
+    "cron"
+  ],
+  "homepage": "https://github.com/aixtral/toolars-open/tree/main/packages/cli#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aixtral/toolars-open.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/aixtral/toolars-open/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "node build.mjs",
     "test": "node build.mjs && vitest run --config vitest.config.ts"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "vitest": "^4.1.10"
   }
 }
