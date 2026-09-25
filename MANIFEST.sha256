@@ -1,7 +1,7 @@
 # Toolars open-source distribution manifest
-# generated: 2026-09-25T08:31:23.824Z
+# generated: 2026-09-25T08:53:29.655Z
 # files: 34
-# bytes: 169697
+# bytes: 170839
 # canonical harness: scripts/capture-privacy-proof.mjs
 # harness patches: usage-header, configuration-block, fixture-path, environment-description, harness-metadata, crypto-import
 
@@ -11,7 +11,7 @@ b6db198713b0ef5eee33efdc00693e7e8d6837250fd0b7b362534ffb89f2ad81  LICENSE
 3173b868cecd03ccfeb585ebd47da04171b500d75e52088a54dec257ea5ec2bd  SECURITY.md
 ab7d7ef05a05dd86b64d8861f97d03167f1a47ef56194e139f3fb462e6ed2a9d  THIRD-PARTY.md
 22ef1df044a41cc21f904d683cf09ebc4718eb3777c33a630cce00d36526d1c3  evidence-harness/README.md
-94dfaeabaf0ccf0ce211add8cd08bf41839fbe2693f4395d4ea6af69f9fa9cec  evidence-harness/capture-privacy-proof.mjs
+8775ba13e3a7c8d3ef1ae13104489501a3fe90cc190d715411eaeff0dc45087c  evidence-harness/capture-privacy-proof.mjs
 8ffec9b0178a40bb072935078c07b27105f85ac6f2578ec0d4c65c9d54a8df00  evidence-harness/fixtures/PROVENANCE.md
 30aa4a8755694b35ef352e6037dcedd82c52b8fac9b236aacbd9bc0d48888823  evidence-harness/fixtures/heic/gradient-96x64.heic
 25bac1e59bc4ac672423e35f352a5e1911ea0f90972a095161179e3b6cc26af7  evidence-harness/lib/sized-image-files.mjs
@@ -19,7 +19,7 @@ ab7d7ef05a05dd86b64d8861f97d03167f1a47ef56194e139f3fb462e6ed2a9d  THIRD-PARTY.md
 3a9e6d991afac3362e9b6da53cb16a8242f79b625bcb25996971cf4288b98b62  evidence-harness/receipts/2026-09-25-live.json
 782c9edb8a78d208f75f6bca142a4792d10808c4c20e64d2609da71da713fd0e  evidence-harness/receipts/README.md
 b6db198713b0ef5eee33efdc00693e7e8d6837250fd0b7b362534ffb89f2ad81  packages/cli/LICENSE
-536cc95f3275d17325b419b3a01d6b91330b3329517048b204076ef799be8cea  packages/cli/README.md
+19e33d14ba42f379fb4ce7f55af6e77aa4d2d5daaadad8e71b46cbb1ef1f1667  packages/cli/README.md
 26c6cb0163f5fda95914f72358940b62fe45029db8fb1a4c345d417bdff359cf  packages/cli/build.mjs
 378fa0bb8f7b324f025198ca22728bace8ccb8b2779d9e4715cade9f8950f836  packages/cli/package.json
 29a3047f6601850d839d0eb1fca9bf7c1fc8d716fd9f5ae99cf9dd3e584ad375  packages/cli/src/cli.integration.test.ts
@@ -31,11 +31,11 @@ b6db198713b0ef5eee33efdc00693e7e8d6837250fd0b7b362534ffb89f2ad81  packages/cli/L
 cb07f11980c3e5ed555f7880f0c82d63e1bebc999c51df927134af10b70906b3  packages/cli/src/render.ts
 d2610264d04e59cca50899fcbde1e7cb8c57038c72020c359610e0bf4c81d26b  packages/cli/vitest.config.ts
 b6db198713b0ef5eee33efdc00693e7e8d6837250fd0b7b362534ffb89f2ad81  packages/local-tools/LICENSE
-221ef9e270579e5e4ca8f3e41277a9cf09ed0255da2689b84fbe17aea95d6f8d  packages/local-tools/README.md
+ee185cc0724c93a0db53b6f53249b56a9604e80412e50c8347046cd1d2708731  packages/local-tools/README.md
 29119596f88b6edd51bb9637b23a73b073ad87dac30a7468e8d50a2ec679ef34  packages/local-tools/build.mjs
 6174a6ca5a715e4be00a5b4ddf8e036616dace7b8ca5a8de5cc87855e39860ac  packages/local-tools/package.json
 33ea70f924d1f28fbf95c620fa6bc0b0e6251848e32f2f9b8485884e6e95feda  packages/local-tools/src/cli.mjs
 5c99768efa051b8f97d1db04733023a4777cd64babbda17457949409be7b462b  packages/local-tools/src/core.mjs
-cd9e654d73366dc996a555ddda04d01e355a4d18ccdc540da2ee6cc00827354b  packages/local-tools/src/json-core.mjs
+bb70b23687f7b5aa74037b0ee684bb47d544b3d95238c18e1da0ac4083ba29c0  packages/local-tools/src/json-core.mjs
 231ca717bd6c4a788a3c894114f38e72aa0f0a8d985a57080f05c92bab3debf5  packages/local-tools/src/mcp.mjs
-04207b9526a602f4b68a2f501988f87b8024f1e9b6166742dd7e1311dd2a29a5  packages/local-tools/test/interfaces.test.mjs
+f831c1c0779fa281ba919561af71ec009fd102b7a1f6eb39e82c197f2161f7b2  packages/local-tools/test/interfaces.test.mjs

@@ -1,6 +1,6 @@
 # Toolars local tools — private experiment
 
-此包为内部试验，尚未发布 npm；`private: true`、`UNLICENSED` 表示未授予开源使用许可。包内没有运行时第三方依赖，不包含网页、账号、网络服务或遥测。
+此包为内部试验，尚未发布 npm；`private: true` 保持不发布，源码按 **MIT** 授权（见 `LICENSE`）。包内没有运行时第三方依赖，不包含网页、账号、网络服务或遥测。
 
 ## 本地使用
 

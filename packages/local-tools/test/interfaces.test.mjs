@@ -282,7 +282,9 @@ test("packed artifact installs offline outside checkout and provides npm import,
       await readFile(join(root, "package.json"), "utf8"),
     );
     assert.equal(manifest.private, true);
-    assert.equal(manifest.license, "UNLICENSED");
+    // The packages were MIT-licensed in the open-source decision (option B);
+    // `private: true` still keeps them off npm, which the line above pins.
+    assert.equal(manifest.license, "MIT");
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

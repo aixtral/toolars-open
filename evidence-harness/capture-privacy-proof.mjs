@@ -377,11 +377,15 @@ async function captureOcrRun(browser) {
   const ocrAssetRequests = [];
   async function runOnce(label, sampleBase64) {
     const before = requests.length;
-    const chooserPromise = page.waitForEvent("filechooser");
-    await page
-      .getByRole("button", { name: "Choose an image", exact: true })
-      .click();
-    const chooser = await chooserPromise;
+    // Promise.all attaches a handler to both immediately. Creating the waiter
+    // and awaiting the click first leaves the waiter floating: if the click
+    // throws, the waiter's later rejection is unhandled and kills the process.
+    const [chooser] = await Promise.all([
+      page.waitForEvent("filechooser"),
+      page
+        .getByRole("button", { name: "Choose an image", exact: true })
+        .click(),
+    ]);
     await chooser.setFiles({
       name: `proof-${label}-${canary}.png`,
       mimeType: "image/png",
@@ -539,6 +543,25 @@ function classifyScenarioError(error) {
   }
   return { errorClass: "unexpected", reason: firstLine };
 }
+
+/**
+ * Last-resort net.
+ *
+ * A rejected promise nobody awaited would otherwise end the process with a raw
+ * stack trace: no receipt, and no indication of which kind of failure it was.
+ * Report it as inconclusive instead, because a run that could not complete must
+ * never be mistaken for a run that found data leaving the device.
+ */
+process.on("unhandledRejection", (reason) => {
+  console.error(
+    "Privacy-proof capture INCONCLUSIVE — a background operation rejected, so " +
+      "this run proves nothing in either direction. This is NOT a finding " +
+      "about the site:",
+  );
+  console.error(reason);
+  void activeBrowser?.close().catch(() => {});
+  process.exit(1);
+});
 
 async function main() {
   const browser = await chromium.launch({ headless: true });

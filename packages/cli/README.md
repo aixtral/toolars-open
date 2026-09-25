@@ -117,4 +117,5 @@ corepack pnpm test
 
 ## License
 
-UNLICENSED — internal Toolars package, not for distribution.
+MIT — see `LICENSE`. The package stays `private: true` and is not published to
+npm; the MIT grant covers the source in this repository.
