@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-25",
+  "environment": {
+    "description": "Headless Chromium against the public site over the network, recording every request (including dedicated Web Worker fetches); service workers blocked, so repeat asset loads are served by the browser's HTTP cache and produce zero recorded requests. The site shell's own analytics request is outside the measured windows; this harness measures tool workspaces.",
+    "browser": "Chromium 151.0.7922.34 (headless)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+    "os": "darwin arm64",
+    "cpu": "Apple M3 Ultra",
+    "node": "v24.21.0",
+    "baseUrl": "https://toolars.com"
+  },
+  "harness": {
+    "script": "evidence-harness/capture-privacy-proof.mjs",
+    "trace": "94dfaeabaf0ccf0ce211add8cd08bf41839fbe2693f4395d4ea6af69f9fa9cec"
+  },
+  "outcome": "verified",
+  "violations": [],
+  "unavailable": [],
+  "scenarios": [
+    {
+      "id": "image-tool-convert",
+      "toolSlug": "image-format-converter",
+      "window": "One full conversion plus download, after page and runtime warm-up.",
+      "canary": "tlrs-proof-en9c1kc1gf",
+      "outputFile": "toolars-proof-tlrs-proof-en9c1kc1gf.jpg",
+      "totalRequests": 0,
+      "sameOriginRequests": 0,
+      "crossOriginRequests": 0,
+      "disclosedShellRequests": 0,
+      "unexpectedCrossOriginRequests": 0,
+      "unexpectedHosts": [],
+      "uploadRequests": 0,
+      "canaryLeaks": 0,
+      "thirdPartyHosts": [],
+      "requests": []
+    },
+    {
+      "id": "image-tool-heic-convert",
+      "toolSlug": "image-format-converter",
+      "window": "Second HEIC → JPEG conversion plus download, after the lazy decoder warm-up fetch.",
+      "canary": "tlrs-proof-18er41ccw4",
+      "outputFile": "toolars-proof-tlrs-proof-18er41ccw4.jpg",
+      "totalRequests": 0,
+      "sameOriginRequests": 0,
+      "crossOriginRequests": 0,
+      "disclosedShellRequests": 0,
+      "unexpectedCrossOriginRequests": 0,
+      "unexpectedHosts": [],
+      "uploadRequests": 0,
+      "canaryLeaks": 0,
+      "thirdPartyHosts": [],
+      "decoderAssets": {
+        "window": "First HEIC conversion: the lazy libheif decoder download.",
+        "sameOriginOnly": true,
+        "paths": [
+          "/generated/runtime/7879e1c92e1bdb08/libheif.js",
+          "/generated/runtime/e4aa8333fbe55ec7/libheif.wasm",
+          "/generated/runtime/6c728441042ea88c/heic-decode-worker.js"
+        ]
+      },
+      "requests": []
+    },
+    {
+      "id": "ocr-language-pack",
+      "toolSlug": "image-to-text-ocr",
+      "window": "Second recognition pass, after the engine and language pack warm-up fetch.",
+      "recognizedTextMatches": true,
+      "totalRequests": 3,
+      "sameOriginRequests": 3,
+      "crossOriginRequests": 0,
+      "disclosedShellRequests": 0,
+      "unexpectedCrossOriginRequests": 0,
+      "unexpectedHosts": [],
+      "uploadRequests": 0,
+      "canaryLeaks": 0,
+      "thirdPartyHosts": [],
+      "languagePack": {
+        "language": "chi_sim",
+        "window": "Selecting Simplified Chinese downloads its language pack once, then stays cached.",
+        "totalRequests": 1,
+        "sameOriginRequests": 1,
+        "crossOriginRequests": 0,
+        "disclosedShellRequests": 0,
+        "unexpectedCrossOriginRequests": 0,
+        "unexpectedHosts": [],
+        "uploadRequests": 0,
+        "canaryLeaks": 0,
+        "thirdPartyHosts": [],
+        "sameOriginAssetPaths": [
+          "/generated/runtime/89456b34c2769c9a/chi_sim.traineddata.gz"
+        ]
+      },
+      "multiLanguage": {
+        "language": "chi_sim",
+        "window": "Second Simplified Chinese recognition pass, after the pack download.",
+        "recognizedTextMatches": true,
+        "totalRequests": 3,
+        "sameOriginRequests": 3,
+        "crossOriginRequests": 0,
+        "disclosedShellRequests": 0,
+        "unexpectedCrossOriginRequests": 0,
+        "unexpectedHosts": [],
+        "uploadRequests": 0,
+        "canaryLeaks": 0,
+        "thirdPartyHosts": []
+      },
+      "sameOriginAssetPaths": [
+        "/generated/runtime/775a35df6f2ae100/tesseract-core-lstm.wasm.js",
+        "/generated/runtime/89456b34c2769c9a/chi_sim.traineddata.gz",
+        "/generated/runtime/d8438d6a4fba7bc3/eng.traineddata.gz",
+        "/generated/runtime/e4d26dedc913c87f/worker.min.js"
+      ],
+      "requests": [
+        {
+          "seq": 45,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/generated/runtime/e4d26dedc913c87f/worker.min.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 46,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/generated/runtime/775a35df6f2ae100/tesseract-core-lstm.wasm.js",
+          "resourceType": "other",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 47,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/generated/runtime/d8438d6a4fba7bc3/eng.traineddata.gz",
+          "resourceType": "fetch",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        }
+      ]
+    },
+    {
+      "id": "pdf-tool-rotate",
+      "toolSlug": "pdf-rotator",
+      "window": "Rotate the bundled sample and download the result, after warm-up.",
+      "outputFile": "sample-rotation-rotated.pdf",
+      "totalRequests": 0,
+      "sameOriginRequests": 0,
+      "crossOriginRequests": 0,
+      "disclosedShellRequests": 0,
+      "unexpectedCrossOriginRequests": 0,
+      "unexpectedHosts": [],
+      "uploadRequests": 0,
+      "canaryLeaks": 0,
+      "thirdPartyHosts": [],
+      "requests": []
+    }
+  ]
+}

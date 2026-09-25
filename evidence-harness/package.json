@@ -1,0 +1,17 @@
+{
+  "name": "@toolars/evidence-harness",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Drives the public Toolars site in headless Chromium and records every network request to check that files are processed locally and never uploaded.",
+  "type": "module",
+  "engines": {
+    "node": ">=24.15.0 <25"
+  },
+  "scripts": {
+    "verify": "node capture-privacy-proof.mjs"
+  },
+  "dependencies": {
+    "@playwright/test": "1.62.1"
+  }
+}
