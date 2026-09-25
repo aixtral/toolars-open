@@ -176,9 +176,17 @@ the receipt attached.
 capture-privacy-proof.mjs   the harness
 lib/sized-image-files.mjs   builds exact-size synthetic PNGs (zlib only)
 fixtures/PROVENANCE.md      provenance of the bundled HEIC test image
-fixtures/gradient-96x64.heic
+fixtures/heic/gradient-96x64.heic
 ```
 
 ## License
 
 MIT — see `../LICENSE`.
+
+## Release identity
+
+Every run records the response's `X-Toolars-Release` before and after capture and
+on each measured tool navigation. Missing identity or different revisions makes
+the result inconclusive. `release.revision` identifies the tested deployment;
+it is never taken from the local checkout. This four-scenario network capture
+does not validate all tools or offline operation.

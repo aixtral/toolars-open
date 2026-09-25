@@ -14,7 +14,7 @@ bodies, or response bodies.
 
 | `outcome`                | Meaning                                                                                                                                | Exit code |
 | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| `verified`               | Every scenario completed and nothing left the device.                                                                                  | `0`       |
+| `verified`               | Every scenario completed with no observed uploads, canary leaks or unexpected external requests.                                       | `0`       |
 | `violation`              | A scenario completed and something crossed the boundary: an upload, a canary leak, or a request to an undisclosed host.                | non-zero  |
 | `inconclusive`           | One or more scenarios **could not be completed** (transport failure, timeout). This run proves nothing about them in either direction. | non-zero  |
 | `violation+inconclusive` | Both of the above.                                                                                                                     | non-zero  |
@@ -27,6 +27,23 @@ that did not verify the claim has not passed.
 `violations` and `unavailable` are the structured lists behind that outcome, so
 a receipt says exactly what happened without you having to read terminal
 scrollback.
+
+## `2026-09-25-release-641c63e4052817df.json`
+
+This later run measures the live production release `641c63e4052817df` with
+all four scenarios. It completed with `outcome: verified`: zero upload
+requests, zero canary leaks and zero unexpected cross-origin requests.
+The image conversion and PDF rotation windows each recorded two disclosed
+`track.toolars.com` script GETs, so this receipt does **not** claim zero
+cross-origin traffic.
+
+Unlike the earlier receipt, `release` records the response-header observations
+before, during and after the run. All six observations identified the same
+release. `harness.trace` is the SHA-256 of the exported capture script; it is
+not a hash of the website, and it does not identify a later deployment.
+The distribution manifest covers the accompanying helper files as well.
+This remains a project-operated observation, not an independent audit or
+an offline-runtime test.
 
 ## `2026-09-25-live.json`
 

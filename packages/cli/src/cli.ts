@@ -41,9 +41,9 @@ Usage:
   toolars mcp
   toolars --help | --version
 
-Input comes from the argument when given, otherwise from stdin. One trailing
-line break is stripped from stdin (use --json or a file redirect for exact
-byte control is not supported; pipe exact bytes without a trailing newline).
+Input comes from one quoted argument when given, otherwise from stdin. One
+trailing line break is stripped from stdin; pipe without a trailing newline
+to retain exact bytes. Use -- before text that begins with a dash.
 
 All computation runs locally. No network calls, no telemetry. Output goes to
 stdout; stable error codes go to stderr with exit code 1; usage errors exit 2.
@@ -64,18 +64,28 @@ function parseArgs(argv: readonly string[]): {
   const flags = new Map<string, string | boolean>();
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index]!;
-    if (!arg.startsWith("-")) {
+    if (arg === "--") {
+      positionals.push(...argv.slice(index + 1));
+      break;
+    }
+    if (!arg.startsWith("-") || /^-\d/u.test(arg)) {
       positionals.push(arg);
       continue;
     }
     const inline = /^--?([^=]+)=(.*)$/u.exec(arg);
     if (inline) {
+      if (flags.has(inline[1]!))
+        throw new UsageError(`duplicate option: --${inline[1]}`);
       flags.set(inline[1]!, inline[2]!);
       continue;
     }
     const name = arg.replace(/^--?/, "");
+    if (flags.has(name)) throw new UsageError(`duplicate option: --${name}`);
     const next = argv[index + 1];
-    if (VALUE_FLAGS.has(name) && next !== undefined && !next.startsWith("-")) {
+    if (VALUE_FLAGS.has(name)) {
+      if (next === undefined || (next.startsWith("-") && !/^-\d/u.test(next))) {
+        throw new UsageError(`--${name} requires a value`);
+      }
       flags.set(name, next);
       index += 1;
     } else {
@@ -83,6 +93,48 @@ function parseArgs(argv: readonly string[]): {
     }
   }
   return { positionals, flags };
+}
+
+const COMMAND_OPTIONS: Readonly<
+  Record<string, { flags: readonly string[]; maxPositionals: number }>
+> = {
+  hash: { flags: [...HASH_ALGORITHMS, "json"], maxPositionals: 2 },
+  base64: { flags: ["url-safe", "json"], maxPositionals: 3 },
+  jwt: { flags: ["json"], maxPositionals: 3 },
+  uuid: { flags: ["v7", "count", "json"], maxPositionals: 1 },
+  ulid: { flags: ["count", "json"], maxPositionals: 1 },
+  timestamp: { flags: ["output-tz", "json"], maxPositionals: 2 },
+  cron: { flags: ["count", "tz", "json"], maxPositionals: 3 },
+  url: { flags: ["mode", "json"], maxPositionals: 3 },
+  mcp: { flags: [], maxPositionals: 1 },
+  help: { flags: [], maxPositionals: 1 },
+};
+
+function validateArgs(
+  positionals: readonly string[],
+  flags: Map<string, string | boolean>,
+) {
+  const command = positionals[0] ?? "help";
+  const contract = Object.hasOwn(COMMAND_OPTIONS, command)
+    ? COMMAND_OPTIONS[command]
+    : undefined;
+  if (!contract) throw new UsageError(`unknown command: ${command}`);
+  if (positionals.length > contract.maxPositionals) {
+    throw new UsageError(
+      `too many arguments for ${command}; quote text containing spaces`,
+    );
+  }
+  const allowed = new Set([...contract.flags, "help", "version"]);
+  for (const [name, value] of flags) {
+    if (
+      !allowed.has(name) ||
+      (VALUE_FLAGS.has(name)
+        ? typeof value !== "string" || !value
+        : value !== true)
+    ) {
+      throw new UsageError(`unsupported ${command} option: --${name}`);
+    }
+  }
 }
 
 function getStringFlag(
@@ -156,8 +208,10 @@ async function readTextInput(
   let text = new TextDecoder("utf-8", { fatal: false }).decode(
     concatBytes(chunks),
   );
-  if (text.endsWith("\n")) text = text.slice(0, -1);
-  if (text.endsWith("\r")) text = text.slice(0, -1);
+  if (text.endsWith("\n")) {
+    text = text.slice(0, -1);
+    if (text.endsWith("\r")) text = text.slice(0, -1);
+  }
   return text;
 }
 
@@ -194,8 +248,9 @@ async function run(
   argv: readonly string[],
   stdin: AsyncIterable<unknown>,
 ): Promise<number> {
-  const jsonMode = argv.includes("--json");
   const { positionals, flags } = parseArgs(argv);
+  validateArgs(positionals, flags);
+  const jsonMode = getBooleanFlag(flags, "json");
   const command = positionals[0];
   // Commands with a subcommand (base64/url/jwt/cron) take their operand at
   // index 2; plain commands (hash/timestamp) take it at index 1.
@@ -217,12 +272,6 @@ async function run(
 
   switch (command) {
     case "hash": {
-      const allowed = new Set<string>([...HASH_ALGORITHMS, "json"]);
-      for (const [name, value] of flags) {
-        if (!allowed.has(name) || value !== true) {
-          throw new UsageError(`unsupported hash option: --${name}`);
-        }
-      }
       const requested = HASH_ALGORITHMS.filter((algorithm) =>
         getBooleanFlag(flags, algorithm),
       );

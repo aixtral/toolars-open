@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdtemp, rm, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -48,6 +49,68 @@ function runCli(args: readonly string[], input = ""): Promise<CliOutcome> {
 }
 
 describe("toolars CLI (integration, spawns the built bin)", () => {
+  it("preserves a bare carriage return in stdin", async () => {
+    const outcome = await runCli(["hash"], "abc\r");
+    expect(outcome).toEqual({
+      code: 0,
+      stdout: createHash("sha256").update("abc\r").digest("hex") + "\n",
+      stderr: "",
+    });
+  });
+
+  it.each([
+    ["hash", "abc", "def"],
+    ["base64", "encode", "abc", "def"],
+    ["uuid", "unexpected"],
+    ["uuid", "--count"],
+    ["uuid", "--count", "--json"],
+    ["uuid", "--count="],
+    ["uuid", "--count", "-1"],
+    ["uuid", "--count", "2", "--count", "3"],
+    ["base64", "encode", "abc", "--ur-safe"],
+    ["base64", "encode", "abc", "--url-safe=false"],
+    ["url", "encode", "abc", "--mode"],
+    ["timestamp", "0", "--output-tz"],
+    ["cron", "explain", "* * * * *", "--tz"],
+    ["ulid", "--v7"],
+    ["mcp", "--json"],
+    ["--unknown"],
+    ["constructor"],
+    ["toString"],
+  ])(
+    "rejects malformed arguments without success output: %j",
+    async (...args) => {
+      const outcome = await runCli(args);
+      expect(outcome.code).toBe(2);
+      expect(outcome.stdout).toBe("");
+      expect(outcome.stderr).toContain("USAGE_ERROR");
+    },
+  );
+
+  it("treats everything after -- as literal input, including flag-looking text", async () => {
+    const outcome = await runCli(["base64", "encode", "--", "--json"]);
+    expect(outcome).toEqual({
+      code: 0,
+      stdout: Buffer.from("--json").toString("base64") + "\n",
+      stderr: "",
+    });
+  });
+
+  it("accepts a negative timestamp as input instead of an ignored option", async () => {
+    const outcome = await runCli(["timestamp", "-1"]);
+    expect(outcome.code).toBe(0);
+    expect(outcome.stdout).toContain("unix_seconds: -1");
+  });
+
+  it("continues to accept inline values and global help", async () => {
+    const outcome = await runCli(["uuid", "--count=2", "--json"]);
+    expect(outcome.code).toBe(0);
+    expect(JSON.parse(outcome.stdout).values).toHaveLength(2);
+    const help = await runCli(["hash", "--help"]);
+    expect(help.code).toBe(0);
+    expect(help.stdout).toContain("Usage:");
+  });
+
   it.each(["--sha25", "--md5=true", "--algorithm=md5", "--json=false"])(
     "rejects unsupported hash option %s instead of computing a different digest",
     async (flag) => {

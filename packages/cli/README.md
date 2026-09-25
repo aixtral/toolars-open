@@ -71,7 +71,13 @@ Commands and the website tools they mirror:
 
 `hash` covers all six digest tools the website ships. Omitting the algorithm flag uses SHA-256. MD5 and SHA-1 are integrity-only legacy digests and are never signatures — the website labels them the same way. Pass at most one algorithm flag; passing two is a usage error (exit `2`).
 
-The algorithm list is derived from the site catalog rather than hardcoded: `src/core.test.ts` reads `HASH_TOOL_SLUGS` / `HASH_TOOL_DEFINITIONS` from `src/features/tool-runtime/hash/definitions.ts` and asserts both the algorithm set and each tool's published sample digest, so adding or removing a hash tool on the website fails the CLI tests until the CLI follows.
+The algorithm list is checked against the site catalog: `src/core.test.ts` reads `HASH_TOOL_SLUGS` / `HASH_TOOL_DEFINITIONS` from `src/features/tool-runtime/hash/definitions.ts` and asserts both the algorithm set and each tool's published sample digest, so adding or removing a hash tool on the website fails the CLI tests until the CLI follows.
+
+All commands reject unknown or repeated options, missing option values and extra
+positional arguments with exit `2`, before producing a result. Quote text that
+contains spaces. Use `--` before literal text beginning with a dash, for example
+`toolars base64 encode -- --json`; that text is input, not an output-format flag.
+Negative timestamps can be passed directly, for example `toolars timestamp -1`.
 
 ### JWT decode is not verification
 

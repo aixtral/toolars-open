@@ -1,8 +1,27 @@
 # Toolars open-source distribution
 
+[![Privacy proof](https://github.com/aixtral/toolars-open/actions/workflows/privacy-proof.yml/badge.svg)](https://github.com/aixtral/toolars-open/actions/workflows/privacy-proof.yml)
+
 This directory is the source of truth for the code Toolars publishes publicly.
 It is assembled into a distributable tree by `scripts/export-open-source.mjs`
 in the private repository; nothing here is built or bundled into the website.
+
+## Continuous verification
+
+Every push and every day at 03:17 UTC, the
+[Privacy proof workflow](https://github.com/aixtral/toolars-open/actions/workflows/privacy-proof.yml)
+rebuilds both packages from this tree alone, re-runs their test vectors, and
+re-captures the privacy-proof receipt against the live site. The badge is
+green only when the latest receipt's outcome is `verified`.
+
+A failed run is not automatically a privacy finding. The harness distinguishes
+two outcomes: `violation` means a measured request crossed the
+local-processing boundary (the workflow fails on the first attempt, without
+retrying); `inconclusive` means the run could not be completed — usually a
+network problem between the runner and the site — and says nothing about the
+site in either direction. Inconclusive runs are retried; a persistent one
+fails the job with an explicit notice. Read the run log before reading
+anything into a red badge.
 
 ## What is published
 
@@ -26,7 +45,7 @@ This is an **open-core** distribution, not the whole product. Not included:
   runner cores these two packages import (15 files for the CLI, 2 for
   local-tools), because without them the packages could not be rebuilt or
   re-tested here. The `packages/cli` bundle also inlines compiled copies of the
-  same cores, since it is the artifact `@toolars/cli` publishes to npm. Both are
+  same cores, since it is the artifact prepared for a future `@toolars/cli` npm release. Both are
   covered by this repository's MIT license;
 - runtime assets (WASM engines, OCR language packs, fonts, PDF.js);
 - internal engineering, product, and audit documentation;
@@ -46,9 +65,11 @@ npx playwright install chromium
 npm run verify -- --base-url https://toolars.com
 ```
 
-The run writes `privacy-proof-receipt.json` and exits non-zero if any request
-left the site's origin, if any request carried the canary marker, or if any
-request uploaded data.
+The run writes `privacy-proof-receipt.json` and exits non-zero if an unexpected request leaves the site's origin, if any request carries the
+canary marker, or if any request uploads data. Disclosed shell requests are counted
+separately. A missing or changing release identity also prevents a verified result.
+
+Both packages remain private and unpublished on npm.
 
 ## Running the CLI and MCP server
 
@@ -58,7 +79,7 @@ node dist/cli.mjs hash --sha256 "hello"
 node dist/mcp.mjs   # stdio MCP server
 ```
 
-`dist/` is committed and byte-identical to what `@toolars/cli` publishes, so
+`dist/` is committed and copied from the private build output, so
 running it needs no install and no build. Review that bundle if you want to see
 the code you would actually execute: it is unminified, and its section comments
 name the source file each part came from.
@@ -71,7 +92,7 @@ under `vendor/`, so neither needs the private repository:
 cd packages/cli
 npm install          # esbuild + vitest, declared as devDependencies
 npm run build        # writes dist/ from src/ plus vendor/
-npm test             # 55 tests, including the shared digest vectors
+npm test             # shared digest vectors and CLI/MCP boundary tests
 ```
 
 ```bash
@@ -84,9 +105,10 @@ node --test test/*.test.mjs
 `vendor/` holds copies of the site runner cores these packages import, produced
 by the exporter and byte-identical to the private ones. They are published as
 source on purpose: a reader who can rebuild the package and re-run its vectors
-can check the results instead of trusting them. Rebuilding `local-tools` changes
-one comment line in the generated `src/json-core.mjs` (the bundle records where
-its input came from); the code is unchanged.
+can check the results instead of trusting them. Rebuilding in the exported layout changes source-path comments in the CLI
+bundles and local-tools generated core. Compare executable content separately
+from these comments; a rebuild is not claimed to reproduce the original
+manifest byte for byte.
 
 Both packages are local-stdio only. Their inputs and results enter the calling
 client's context and may reach that client's model provider; the website's

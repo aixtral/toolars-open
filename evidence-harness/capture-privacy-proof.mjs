@@ -2,10 +2,10 @@
  * Toolars privacy-proof capture harness.
  *
  * Re-runnable evidence producer for the /privacy-proof "verify it yourself"
- * section. For three representative scenarios — an image conversion, the
- * local OCR engine, and a PDF rotation — it drives the real tool workspaces
+ * section. For four representative scenarios — PNG and HEIC conversions,
+ * the local OCR engine, and a PDF rotation — it drives the real tool workspaces
  * in headless Chromium while recording every network request through the
- * CDP Network domain:
+ * Playwright request events, including requests from dedicated Workers:
  *
  *   - image-format-converter: a full PNG → JPEG conversion plus download,
  *     with a canary marker embedded in a PNG tEXt chunk; any request that
@@ -48,6 +48,10 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 
 import { makeSizedNoisePng } from "./lib/sized-image-files.mjs";
+import {
+  captureReleaseObservation,
+  summarizeCaptureRelease,
+} from "./lib/capture-release.mjs";
 
 /** Fixtures and the shared fixture library live beside this script. */
 const harnessRoot = fileURLToPath(new URL("./", import.meta.url));
@@ -74,6 +78,27 @@ const baseOrigin = new URL(baseUrl).origin;
  * canary leaks stay fatal regardless of host.
  */
 const DISCLOSED_SHELL_HOSTS = new Set(["track.toolars.com"]);
+
+const releaseObservations = [];
+function observeRelease(response) {
+  if (!response)
+    throw new Error("No response identifying the measured release");
+  releaseObservations.push(
+    captureReleaseObservation(
+      {
+        url: response.url(),
+        status: response.status(),
+        revision: response.headers()["x-toolars-release"],
+      },
+      baseOrigin,
+    ),
+  );
+}
+async function navigateToCapturePage(page, url, options) {
+  const response = await page.goto(url, options);
+  observeRelease(response);
+  return response;
+}
 
 const KiB = 1024;
 
@@ -110,7 +135,7 @@ function attachNetworkRecorder(page, canary) {
       host,
       path,
       resourceType: request.resourceType(),
-      sameOrigin: url.startsWith(baseOrigin),
+      sameOrigin: new URL(url).origin === baseOrigin,
       hasPostData: postData !== null,
       carriedCanary:
         url.includes(canary) || postData?.includes(canary) === true,
@@ -198,7 +223,7 @@ async function captureImageConversion(browser) {
   const page = await context.newPage();
   const requests = attachNetworkRecorder(page, canary);
 
-  await page.goto(`${baseUrl}/tools/image-format-converter`, {
+  await navigateToCapturePage(page, `${baseUrl}/tools/image-format-converter`, {
     // Deliberately NOT "networkidle": the live site loads a cookieless
     // analytics script from a first-party proxy, so network idleness depends on
     // third-party infrastructure and on whether the operator blocks it. A
@@ -261,7 +286,7 @@ async function captureHeicConversion(browser) {
     `${harnessRoot}fixtures/heic/gradient-96x64.heic`,
   );
 
-  await page.goto(`${baseUrl}/tools/image-format-converter`, {
+  await navigateToCapturePage(page, `${baseUrl}/tools/image-format-converter`, {
     // Deliberately NOT "networkidle": the live site loads a cookieless
     // analytics script from a first-party proxy, so network idleness depends on
     // third-party infrastructure and on whether the operator blocks it. A
@@ -281,7 +306,7 @@ async function captureHeicConversion(browser) {
     ) {
       heicAssetRequests.push({
         path: new URL(request.url()).pathname,
-        sameOrigin: request.url().startsWith(baseOrigin),
+        sameOrigin: new URL(request.url()).origin === baseOrigin,
       });
     }
   });
@@ -343,7 +368,7 @@ async function captureOcrRun(browser) {
   const page = await context.newPage();
   const requests = attachNetworkRecorder(page, canary);
 
-  await page.goto(`${baseUrl}/tools/image-to-text-ocr`, {
+  await navigateToCapturePage(page, `${baseUrl}/tools/image-to-text-ocr`, {
     // Deliberately NOT "networkidle": the live site loads a cookieless
     // analytics script from a first-party proxy, so network idleness depends on
     // third-party infrastructure and on whether the operator blocks it. A
@@ -483,7 +508,7 @@ async function capturePdfRotation(browser) {
   const page = await context.newPage();
   const requests = attachNetworkRecorder(page, canary);
 
-  await page.goto(`${baseUrl}/tools/pdf-rotator`, {
+  await navigateToCapturePage(page, `${baseUrl}/tools/pdf-rotator`, {
     // Deliberately NOT "networkidle": the live site loads a cookieless
     // analytics script from a first-party proxy, so network idleness depends on
     // third-party infrastructure and on whether the operator blocks it. A
@@ -568,6 +593,8 @@ async function main() {
   activeBrowser = browser;
   const browserVersion = browser.version();
 
+  const identityContext = await browser.newContext({ serviceWorkers: "block" });
+  observeRelease(await identityContext.request.get(baseUrl));
   const scenarios = [];
   // Scenarios that could not be completed. These are NOT findings about the
   // site: they mean this run proves nothing about that scenario either way.
@@ -603,6 +630,16 @@ async function main() {
       await page.context().close();
       return ua;
     });
+  observeRelease(await identityContext.request.get(baseUrl));
+  const release = summarizeCaptureRelease(releaseObservations);
+  if (!release.stable) {
+    unavailable.push({
+      scenario: "release-identity",
+      errorClass: "release-drift",
+      reason:
+        "The target release changed during capture; rerun against one stable release.",
+    });
+  }
   await browser.close();
 
   // The evidence only counts when nothing left the device.
@@ -684,8 +721,8 @@ async function main() {
   // non-zero, but it must not read as evidence that data left the device.
   if (unavailable.length > 0) {
     console.error(
-      `Privacy-proof capture INCONCLUSIVE — ${unavailable.length} of 4 ` +
-        "scenarios could not be completed, so this run proves nothing about " +
+      `Privacy-proof capture INCONCLUSIVE — ${unavailable.length} required ` +
+        "checks could not be completed, so this run proves nothing about " +
         "them in either direction. This is NOT a finding about the site:\n" +
         unavailable
           .map(
@@ -709,6 +746,7 @@ async function main() {
   const payload = {
     schemaVersion: 1,
     capturedAt: new Date().toISOString().slice(0, 10),
+    release,
     environment: {
       description:
         "Headless Chromium against the public site over the network, recording every request (including dedicated Web Worker fetches); service workers blocked, so repeat asset loads are served by the browser's HTTP cache and produce zero recorded requests. The site shell's own analytics request is outside the measured windows; this harness measures tool workspaces.",

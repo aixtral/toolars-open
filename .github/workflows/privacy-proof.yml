@@ -1,0 +1,125 @@
+# Continuous verification for the public Toolars distribution.
+#
+# Two jobs, both free on a public repository:
+#   - packages: rebuilds both Node packages from this tree alone and re-runs
+#     their test vectors, proving the export is self-contained.
+#   - privacy-proof: runs the evidence harness against the live site. The
+#     badge is green only when the last run's receipt says `verified`.
+#
+# Outcome discipline: a run that could not complete is INCONCLUSIVE, not a
+# violation. Network flakes are absorbed by retrying; only a receipt whose
+# outcome contains "violation" fails on the first attempt. A run that stays
+# inconclusive after all attempts fails the job with an explicit notice that
+# it is not a finding about the site.
+name: Privacy proof
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Daily against the live site. Off-peak, deliberately not a round hour.
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: privacy-proof-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  packages:
+    name: Rebuild packages and re-run test vectors
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+      - name: Build and test @toolars/cli
+        working-directory: packages/cli
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+          npm test
+      - name: Build and test @toolars/local-tools
+        working-directory: packages/local-tools
+        run: |
+          npm install --no-audit --no-fund
+          node build.mjs
+          node --test test/*.test.mjs
+
+  privacy-proof:
+    name: Capture the privacy-proof receipt
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+      - name: Install harness dependencies
+        working-directory: evidence-harness
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        working-directory: evidence-harness
+        run: npx playwright install --with-deps chromium
+      - name: Run the harness (retry only when inconclusive)
+        working-directory: evidence-harness
+        run: |
+          set -u
+          attempt=1
+          max_attempts=3
+          while :; do
+            receipt="receipt-attempt-${attempt}.json"
+            rm -f "${receipt}"
+            node capture-privacy-proof.mjs --base-url https://toolars.com \
+              --out "${receipt}" && code=0 || code=$?
+            outcome="unknown"
+            if [ -f "${receipt}" ]; then
+              cp "${receipt}" privacy-proof-receipt.json
+              outcome=$(node -e '
+                const { readFileSync } = require("node:fs");
+                try {
+                  const r = JSON.parse(readFileSync(process.argv[1], "utf8"));
+                  process.stdout.write(String(r.outcome ?? "unknown"));
+                } catch {
+                  process.stdout.write("unknown");
+                }
+              ' "${receipt}")
+            fi
+            echo "attempt ${attempt}: exit=${code} outcome=${outcome}"
+            case "${outcome}" in
+              *violation*)
+                echo "::error::VIOLATION — a measured request crossed the local-processing boundary. Failing without retry."
+                exit 1
+                ;;
+              verified)
+                echo "Receipt outcome: verified."
+                exit 0
+                ;;
+              *)
+                if [ "${attempt}" -ge "${max_attempts}" ]; then
+                  echo "::error::INCONCLUSIVE after ${max_attempts} attempts — the runs could not be completed (usually network or an unavailable release). This is NOT a finding about the site; do not read it as a privacy failure."
+                  exit 1
+                fi
+                echo "Inconclusive run; retrying ($((attempt + 1))/${max_attempts}) after a pause."
+                attempt=$((attempt + 1))
+                sleep 20
+                ;;
+            esac
+          done
+      - name: Upload the receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: privacy-proof-receipt
+          path: evidence-harness/privacy-proof-receipt.json
+          if-no-files-found: warn

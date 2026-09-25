@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// packages/cli/src/is-main-entry.ts
+// src/is-main-entry.ts
 import { realpathSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 function isMainEntry(moduleUrl) {
@@ -18,13 +18,13 @@ function isMainEntry(moduleUrl) {
   }
 }
 
-// packages/cli/src/core.ts
+// src/core.ts
 import { createHash } from "node:crypto";
 
-// src/features/tool-runtime/base64/contract.ts
+// vendor/features/tool-runtime/base64/contract.ts
 var MAX_BASE64_INPUT_BYTES = 1024 * 1024;
 
-// src/features/tool-runtime/base64/executor.ts
+// vendor/features/tool-runtime/base64/executor.ts
 var BASE64_PATTERN = /^[A-Za-z0-9+/]*={0,2}$/;
 var BASE64_URL_PATTERN = /^[A-Za-z0-9_-]*={0,2}$/;
 function normalizeLineBreaks(value, preserveLineBreaks) {
@@ -167,7 +167,7 @@ function transformBase64Value(input) {
   return input.operation === "encode" ? encodeBase64(input) : decodeBase64(input);
 }
 
-// src/features/tool-runtime/jwt/inspection.ts
+// vendor/features/tool-runtime/jwt/inspection.ts
 var JWT_TIME_CLAIMS = ["exp", "nbf", "iat"];
 function inspectJwtTimes(payload, now) {
   const secondsNow = Math.floor(now.getTime() / 1e3);
@@ -227,10 +227,10 @@ function decodeJwtSegment(segment) {
   );
 }
 
-// src/features/tool-runtime/identifier/definitions.ts
+// vendor/features/tool-runtime/identifier/definitions.ts
 var MAX_IDENTIFIER_BATCH_COUNT = 100;
 
-// src/features/tool-runtime/identifier/identifier.ts
+// vendor/features/tool-runtime/identifier/identifier.ts
 var ULID_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
 var MAX_TIMESTAMP = (1n << 48n) - 1n;
 var MAX_UUID_V7_RANDOM = (1n << 74n) - 1n;
@@ -395,7 +395,7 @@ function generateIdentifiers(format, count, outputCase = "canonical", dependenci
   });
 }
 
-// src/features/tool-runtime/time-tools/definitions.ts
+// vendor/features/tool-runtime/time-tools/definitions.ts
 var TIME_ZONE_OPTIONS = [
   "UTC",
   "local",
@@ -416,7 +416,7 @@ var TIME_TOOL_LIMITS = {
   timeoutMs: 1500
 };
 
-// src/features/tool-runtime/time-tools/errors.ts
+// vendor/features/tool-runtime/time-tools/errors.ts
 var TimeToolRuntimeError = class extends Error {
   code;
   values;
@@ -431,7 +431,7 @@ function isTimeToolRuntimeError(error) {
   return error instanceof TimeToolRuntimeError;
 }
 
-// src/features/tool-runtime/time-tools/cron.ts
+// vendor/features/tool-runtime/time-tools/cron.ts
 var FIELD_RULES = {
   minute: { min: 0, max: 59 },
   hour: { min: 0, max: 23 },
@@ -654,7 +654,7 @@ function calculateCron(input) {
   };
 }
 
-// src/features/tool-runtime/time-tools/timestamp.ts
+// vendor/features/tool-runtime/time-tools/timestamp.ts
 var WALL_TIME_PATTERN = /^(\d{4}|[+-]\d{6})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/u;
 var NUMBER_PATTERN = /^[+-]?\d+(?:\.\d+)?$/u;
 var MAX_MS = 8640000000000000n;
@@ -874,7 +874,7 @@ function convertTimestamp(input, locale) {
   };
 }
 
-// src/features/tool-runtime/text/definitions.ts
+// vendor/features/tool-runtime/text/definitions.ts
 var LOCAL_TEXT_PRIVACY = {
   processingLocation: "browser",
   inputLeavesDevice: false,
@@ -1026,7 +1026,7 @@ function getTextToolDefinition(slug) {
   return textToolDefinitions[slug];
 }
 
-// src/features/tool-runtime/text/executor.ts
+// vendor/features/tool-runtime/text/executor.ts
 var WORD_PATTERN = /[\p{L}\p{N}][\p{L}\p{M}\p{N}]*(?:['’][\p{L}\p{N}][\p{L}\p{M}\p{N}]*)*/gu;
 var TITLE_WORD_PATTERN = new RegExp("\\p{L}[\\p{L}\\p{M}\\p{N}'\u2019]*", "gu");
 var SENTENCE_START_PATTERN = new RegExp("(^|[.!?\u3002\uFF01\uFF1F]\\s*)(\\p{L})", "gu");
@@ -1275,7 +1275,7 @@ var textToolExecutors = {
   "url-encoder-decoder": createTextExecutor("url-encoder-decoder")
 };
 
-// packages/cli/src/core.ts
+// src/core.ts
 var HASH_ALGORITHMS = [
   "md5",
   "sha1",
@@ -1391,7 +1391,7 @@ function urlTransform(text, operation) {
   return result.ok ? ok({ value: result.value }) : err(result.error.code);
 }
 
-// packages/cli/src/render.ts
+// src/render.ts
 function renderHash(output) {
   return output.digest;
 }
@@ -1438,7 +1438,7 @@ function renderCron(output) {
   return lines.join("\n");
 }
 
-// packages/cli/src/mcp.ts
+// src/mcp.ts
 var PROTOCOL = "2025-11-25";
 var SERVER_NAME = "toolars-cli";
 var VERSION = "0.1.0";
@@ -1877,7 +1877,7 @@ if (false) {
   });
 }
 
-// packages/cli/src/cli.ts
+// src/cli.ts
 var VERSION2 = "0.1.0";
 var USAGE = `toolars ${VERSION2} \u2014 local-first developer utilities (https://toolars.com)
 
@@ -1893,9 +1893,9 @@ Usage:
   toolars mcp
   toolars --help | --version
 
-Input comes from the argument when given, otherwise from stdin. One trailing
-line break is stripped from stdin (use --json or a file redirect for exact
-byte control is not supported; pipe exact bytes without a trailing newline).
+Input comes from one quoted argument when given, otherwise from stdin. One
+trailing line break is stripped from stdin; pipe without a trailing newline
+to retain exact bytes. Use -- before text that begins with a dash.
 
 All computation runs locally. No network calls, no telemetry. Output goes to
 stdout; stable error codes go to stderr with exit code 1; usage errors exit 2.
@@ -1910,18 +1910,28 @@ function parseArgs(argv) {
   const flags = /* @__PURE__ */ new Map();
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
-    if (!arg.startsWith("-")) {
+    if (arg === "--") {
+      positionals.push(...argv.slice(index + 1));
+      break;
+    }
+    if (!arg.startsWith("-") || /^-\d/u.test(arg)) {
       positionals.push(arg);
       continue;
     }
     const inline = /^--?([^=]+)=(.*)$/u.exec(arg);
     if (inline) {
+      if (flags.has(inline[1]))
+        throw new UsageError(`duplicate option: --${inline[1]}`);
       flags.set(inline[1], inline[2]);
       continue;
     }
     const name = arg.replace(/^--?/, "");
+    if (flags.has(name)) throw new UsageError(`duplicate option: --${name}`);
     const next = argv[index + 1];
-    if (VALUE_FLAGS.has(name) && next !== void 0 && !next.startsWith("-")) {
+    if (VALUE_FLAGS.has(name)) {
+      if (next === void 0 || next.startsWith("-") && !/^-\d/u.test(next)) {
+        throw new UsageError(`--${name} requires a value`);
+      }
       flags.set(name, next);
       index += 1;
     } else {
@@ -1929,6 +1939,34 @@ function parseArgs(argv) {
     }
   }
   return { positionals, flags };
+}
+var COMMAND_OPTIONS = {
+  hash: { flags: [...HASH_ALGORITHMS, "json"], maxPositionals: 2 },
+  base64: { flags: ["url-safe", "json"], maxPositionals: 3 },
+  jwt: { flags: ["json"], maxPositionals: 3 },
+  uuid: { flags: ["v7", "count", "json"], maxPositionals: 1 },
+  ulid: { flags: ["count", "json"], maxPositionals: 1 },
+  timestamp: { flags: ["output-tz", "json"], maxPositionals: 2 },
+  cron: { flags: ["count", "tz", "json"], maxPositionals: 3 },
+  url: { flags: ["mode", "json"], maxPositionals: 3 },
+  mcp: { flags: [], maxPositionals: 1 },
+  help: { flags: [], maxPositionals: 1 }
+};
+function validateArgs2(positionals, flags) {
+  const command = positionals[0] ?? "help";
+  const contract = Object.hasOwn(COMMAND_OPTIONS, command) ? COMMAND_OPTIONS[command] : void 0;
+  if (!contract) throw new UsageError(`unknown command: ${command}`);
+  if (positionals.length > contract.maxPositionals) {
+    throw new UsageError(
+      `too many arguments for ${command}; quote text containing spaces`
+    );
+  }
+  const allowed = /* @__PURE__ */ new Set([...contract.flags, "help", "version"]);
+  for (const [name, value] of flags) {
+    if (!allowed.has(name) || (VALUE_FLAGS.has(name) ? typeof value !== "string" || !value : value !== true)) {
+      throw new UsageError(`unsupported ${command} option: --${name}`);
+    }
+  }
 }
 function getStringFlag(flags, name) {
   const value = flags.get(name);
@@ -1975,8 +2013,10 @@ async function readTextInput(positional, stream) {
   let text = new TextDecoder("utf-8", { fatal: false }).decode(
     concatBytes(chunks)
   );
-  if (text.endsWith("\n")) text = text.slice(0, -1);
-  if (text.endsWith("\r")) text = text.slice(0, -1);
+  if (text.endsWith("\n")) {
+    text = text.slice(0, -1);
+    if (text.endsWith("\r")) text = text.slice(0, -1);
+  }
   return text;
 }
 function concatBytes(chunks) {
@@ -2002,8 +2042,9 @@ function emit(result, jsonMode, render) {
   return 0;
 }
 async function run(argv, stdin) {
-  const jsonMode = argv.includes("--json");
   const { positionals, flags } = parseArgs(argv);
+  validateArgs2(positionals, flags);
+  const jsonMode = getBooleanFlag(flags, "json");
   const command = positionals[0];
   const subcommand = positionals[1];
   const operand = positionals[2];
@@ -2017,12 +2058,6 @@ async function run(argv, stdin) {
   }
   switch (command) {
     case "hash": {
-      const allowed = /* @__PURE__ */ new Set([...HASH_ALGORITHMS, "json"]);
-      for (const [name, value] of flags) {
-        if (!allowed.has(name) || value !== true) {
-          throw new UsageError(`unsupported hash option: --${name}`);
-        }
-      }
       const requested = HASH_ALGORITHMS.filter(
         (algorithm) => getBooleanFlag(flags, algorithm)
       );
