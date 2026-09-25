@@ -32,7 +32,7 @@
 - **Corroborating inspection:** the embedded `Exif` box and `irot` are present
   and no encoder, camera, or copyright string accompanies them.
 - **Rights status:** project-generated from the repo's own JPEG fixture.
-- **Note:** this fixture is *not* part of the public distribution. The published
+- **Note:** this fixture is _not_ part of the public distribution. The published
   harness ships only `gradient-96x64.heic`, because only that one is used by the
   HEIC scenario. See `scripts/export-open-source.mjs`.
 
