@@ -1,7 +1,7 @@
 # Toolars open-source distribution manifest
-# generated: 2026-09-25T08:53:29.655Z
+# generated: 2026-09-25T08:54:02.787Z
 # files: 34
-# bytes: 170839
+# bytes: 171236
 # canonical harness: scripts/capture-privacy-proof.mjs
 # harness patches: usage-header, configuration-block, fixture-path, environment-description, harness-metadata, crypto-import
 
@@ -32,10 +32,10 @@ cb07f11980c3e5ed555f7880f0c82d63e1bebc999c51df927134af10b70906b3  packages/cli/s
 d2610264d04e59cca50899fcbde1e7cb8c57038c72020c359610e0bf4c81d26b  packages/cli/vitest.config.ts
 b6db198713b0ef5eee33efdc00693e7e8d6837250fd0b7b362534ffb89f2ad81  packages/local-tools/LICENSE
 ee185cc0724c93a0db53b6f53249b56a9604e80412e50c8347046cd1d2708731  packages/local-tools/README.md
-29119596f88b6edd51bb9637b23a73b073ad87dac30a7468e8d50a2ec679ef34  packages/local-tools/build.mjs
+8d729d01f76d88227a1e63e5062ab0f7d8d9202cff004909d644379c8945d059  packages/local-tools/build.mjs
 6174a6ca5a715e4be00a5b4ddf8e036616dace7b8ca5a8de5cc87855e39860ac  packages/local-tools/package.json
 33ea70f924d1f28fbf95c620fa6bc0b0e6251848e32f2f9b8485884e6e95feda  packages/local-tools/src/cli.mjs
 5c99768efa051b8f97d1db04733023a4777cd64babbda17457949409be7b462b  packages/local-tools/src/core.mjs
-bb70b23687f7b5aa74037b0ee684bb47d544b3d95238c18e1da0ac4083ba29c0  packages/local-tools/src/json-core.mjs
+cd9e654d73366dc996a555ddda04d01e355a4d18ccdc540da2ee6cc00827354b  packages/local-tools/src/json-core.mjs
 231ca717bd6c4a788a3c894114f38e72aa0f0a8d985a57080f05c92bab3debf5  packages/local-tools/src/mcp.mjs
 f831c1c0779fa281ba919561af71ec009fd102b7a1f6eb39e82c197f2161f7b2  packages/local-tools/test/interfaces.test.mjs

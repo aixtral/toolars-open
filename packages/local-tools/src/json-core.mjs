@@ -1,6 +1,6 @@
 // Generated from Toolars native-coding/json-tree.ts by build.mjs; do not edit.
 
-// src/features/tool-runtime/native-coding/json-tree.ts
+// ../../src/features/tool-runtime/native-coding/json-tree.ts
 var JSON_PARSE_LIMITS = {
   maxBytes: 256 * 1024,
   maxDepth: 40,
