@@ -1,7 +1,7 @@
 # Toolars open-source distribution manifest
-# generated: 2026-09-26T06:29:02.983Z
-# files: 57
-# bytes: 428645
+# generated: 2026-09-26T06:49:38.878Z
+# files: 58
+# bytes: 429657
 # canonical harness: scripts/capture-privacy-proof.mjs
 # harness patches: usage-header, configuration-block, fixture-path, environment-description, harness-metadata, crypto-import
 
@@ -62,3 +62,4 @@ cd9e654d73366dc996a555ddda04d01e355a4d18ccdc540da2ee6cc00827354b  packages/local
 2d7537fd8b47af7f6027b895ed099fe1cba37f369f8b229bc2d7da10ff3ae074  packages/local-tools/test/interfaces.test.mjs
 e004d11f015d3bbb133cd0411a44d3a534d50f35deba1b7abb62cb84a0271917  packages/local-tools/vendor/features/tool-runtime/native-coding/definitions.ts
 35030eb5b6864d121c9e77b4c7b4716cae2ab8f17fcfb4e5d3ad7d7e3c7fe5c3  packages/local-tools/vendor/features/tool-runtime/native-coding/json-tree.ts
+24f30259e59fea322cb79993065eb226418093a172d35c443d95711063db6240  server.json

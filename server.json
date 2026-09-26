@@ -1,0 +1,29 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "name": "io.github.aixtral/toolars",
+  "title": "Toolars",
+  "description": "Local-first developer utilities from toolars.com: hash, Base64, JWT decode, UUID/ULID, timestamp, cron and URL encode/decode. All computation runs locally in Node.js — no network calls, no file access, no telemetry.",
+  "repository": {
+    "url": "https://github.com/aixtral/toolars-open",
+    "source": "github"
+  },
+  "websiteUrl": "https://toolars.com",
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@toolars/cli",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "runtimeHint": "npx",
+      "packageArguments": [
+        { "type": "positional", "value": "-y" },
+        { "type": "positional", "value": "-p" },
+        { "type": "positional", "value": "@toolars/cli" },
+        { "type": "positional", "value": "toolars-mcp" }
+      ]
+    }
+  ]
+}
