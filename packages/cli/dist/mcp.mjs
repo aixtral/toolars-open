@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// src/is-main-entry.ts
+// packages/cli/src/is-main-entry.ts
 import { realpathSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 function isMainEntry(moduleUrl) {
@@ -18,13 +18,13 @@ function isMainEntry(moduleUrl) {
   }
 }
 
-// src/core.ts
+// packages/cli/src/core.ts
 import { createHash } from "node:crypto";
 
-// vendor/features/tool-runtime/base64/contract.ts
+// src/features/tool-runtime/base64/contract.ts
 var MAX_BASE64_INPUT_BYTES = 1024 * 1024;
 
-// vendor/features/tool-runtime/base64/executor.ts
+// src/features/tool-runtime/base64/executor.ts
 var BASE64_PATTERN = /^[A-Za-z0-9+/]*={0,2}$/;
 var BASE64_URL_PATTERN = /^[A-Za-z0-9_-]*={0,2}$/;
 function normalizeLineBreaks(value, preserveLineBreaks) {
@@ -167,7 +167,7 @@ function transformBase64Value(input) {
   return input.operation === "encode" ? encodeBase64(input) : decodeBase64(input);
 }
 
-// vendor/features/tool-runtime/jwt/inspection.ts
+// src/features/tool-runtime/jwt/inspection.ts
 var JWT_TIME_CLAIMS = ["exp", "nbf", "iat"];
 function inspectJwtTimes(payload, now) {
   const secondsNow = Math.floor(now.getTime() / 1e3);
@@ -227,10 +227,10 @@ function decodeJwtSegment(segment) {
   );
 }
 
-// vendor/features/tool-runtime/identifier/definitions.ts
+// src/features/tool-runtime/identifier/definitions.ts
 var MAX_IDENTIFIER_BATCH_COUNT = 100;
 
-// vendor/features/tool-runtime/identifier/identifier.ts
+// src/features/tool-runtime/identifier/identifier.ts
 var ULID_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
 var MAX_TIMESTAMP = (1n << 48n) - 1n;
 var MAX_UUID_V7_RANDOM = (1n << 74n) - 1n;
@@ -395,7 +395,7 @@ function generateIdentifiers(format, count, outputCase = "canonical", dependenci
   });
 }
 
-// vendor/features/tool-runtime/time-tools/definitions.ts
+// src/features/tool-runtime/time-tools/definitions.ts
 var TIME_ZONE_OPTIONS = [
   "UTC",
   "local",
@@ -416,7 +416,7 @@ var TIME_TOOL_LIMITS = {
   timeoutMs: 1500
 };
 
-// vendor/features/tool-runtime/time-tools/errors.ts
+// src/features/tool-runtime/time-tools/errors.ts
 var TimeToolRuntimeError = class extends Error {
   code;
   values;
@@ -431,7 +431,7 @@ function isTimeToolRuntimeError(error) {
   return error instanceof TimeToolRuntimeError;
 }
 
-// vendor/features/tool-runtime/time-tools/cron.ts
+// src/features/tool-runtime/time-tools/cron.ts
 var FIELD_RULES = {
   minute: { min: 0, max: 59 },
   hour: { min: 0, max: 23 },
@@ -654,7 +654,7 @@ function calculateCron(input) {
   };
 }
 
-// vendor/features/tool-runtime/time-tools/timestamp.ts
+// src/features/tool-runtime/time-tools/timestamp.ts
 var WALL_TIME_PATTERN = /^(\d{4}|[+-]\d{6})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/u;
 var NUMBER_PATTERN = /^[+-]?\d+(?:\.\d+)?$/u;
 var MAX_MS = 8640000000000000n;
@@ -874,7 +874,7 @@ function convertTimestamp(input, locale) {
   };
 }
 
-// vendor/features/tool-runtime/text/definitions.ts
+// src/features/tool-runtime/text/definitions.ts
 var LOCAL_TEXT_PRIVACY = {
   processingLocation: "browser",
   inputLeavesDevice: false,
@@ -1026,7 +1026,7 @@ function getTextToolDefinition(slug) {
   return textToolDefinitions[slug];
 }
 
-// vendor/features/tool-runtime/text/executor.ts
+// src/features/tool-runtime/text/executor.ts
 var WORD_PATTERN = /[\p{L}\p{N}][\p{L}\p{M}\p{N}]*(?:['’][\p{L}\p{N}][\p{L}\p{M}\p{N}]*)*/gu;
 var TITLE_WORD_PATTERN = new RegExp("\\p{L}[\\p{L}\\p{M}\\p{N}'\u2019]*", "gu");
 var SENTENCE_START_PATTERN = new RegExp("(^|[.!?\u3002\uFF01\uFF1F]\\s*)(\\p{L})", "gu");
@@ -1275,7 +1275,7 @@ var textToolExecutors = {
   "url-encoder-decoder": createTextExecutor("url-encoder-decoder")
 };
 
-// src/core.ts
+// packages/cli/src/core.ts
 var HASH_ALGORITHMS = [
   "md5",
   "sha1",
@@ -1391,7 +1391,7 @@ function urlTransform(text, operation) {
   return result.ok ? ok({ value: result.value }) : err(result.error.code);
 }
 
-// src/render.ts
+// packages/cli/src/render.ts
 function renderHash(output) {
   return output.digest;
 }
@@ -1438,7 +1438,7 @@ function renderCron(output) {
   return lines.join("\n");
 }
 
-// src/mcp.ts
+// packages/cli/src/mcp.ts
 var PROTOCOL = "2025-11-25";
 var SERVER_NAME = "toolars-cli";
 var VERSION = "0.1.0";

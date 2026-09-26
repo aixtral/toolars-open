@@ -1,14 +1,14 @@
 # Toolars open-source distribution manifest
-# generated: 2026-09-25T16:24:55.172Z
+# generated: 2026-09-26T06:29:02.983Z
 # files: 57
-# bytes: 428844
+# bytes: 428645
 # canonical harness: scripts/capture-privacy-proof.mjs
 # harness patches: usage-header, configuration-block, fixture-path, environment-description, harness-metadata, crypto-import
 
 32b4224be0a10755643734c4f0853ee9f52fb5a7d0128bab79c051dff47ea663  .github/workflows/privacy-proof.yml
 a78f055390a5228a8ee2185acb4914d367adfe1985f52211a87fe03634c8a373  .gitignore
 b6db198713b0ef5eee33efdc00693e7e8d6837250fd0b7b362534ffb89f2ad81  LICENSE
-b1c0e55d08e2de2538881245a8c6215111c109b702fc2d3b0461d3aabde85399  README.md
+1276a5548284f48186cad82eab128aea5a024c81d15ec3ae65e84f09f5a621b0  README.md
 3173b868cecd03ccfeb585ebd47da04171b500d75e52088a54dec257ea5ec2bd  SECURITY.md
 3cbcb16f27329556ae2b4c175a5d3220e05fee04c45a4cbc37c4c61bf7b4248e  THIRD-PARTY.md
 099238d8f00a1355f620376e8594dd0f215e187c99619967ff1b8daf3b3a34bf  evidence-harness/README.md
@@ -22,11 +22,11 @@ b9c345204fb8de6de2bd622351036b824c7330803d545d5a0eb4d247213fe241  evidence-harne
 78e105be963ae33e6cd4a500d579b854a342a1de80464fe026db550c3666568b  evidence-harness/receipts/2026-09-25-release-641c63e4052817df.json
 76a62245b974859eb89ecdcf627bd7098b840b8e2c592b953afb8dffed2425aa  evidence-harness/receipts/README.md
 b6db198713b0ef5eee33efdc00693e7e8d6837250fd0b7b362534ffb89f2ad81  packages/cli/LICENSE
-cff02b00b7307685aa9ed87aba8462d7ee15c34f144154df040c25b9a4325f71  packages/cli/README.md
+c3c5f2161afc5941ad98114a72f449f6b8f969b65414d052b2b6b4773800cd74  packages/cli/README.md
 6d4aa3e95b5063ae9d9115cca9a674eebe5471066cf01ea226e249eaae293fbf  packages/cli/build.mjs
 8a36bb434bafe5f0bf2c0a4ff847458fbff665ff086ac0f7665e1af943163e6e  packages/cli/dist/cli.mjs
 05193a146cd339d0f442dcd9f91dd162385cf676c446c9a7b461d33a9958ec1b  packages/cli/dist/mcp.mjs
-9bff2c0793865ee8b5c22d4d3ec7f2327210251d7b81a65fb9d00ff126e4fb83  packages/cli/package.json
+d44ce09f6255398e45a66674090d9a4a6c64c283092ee28fa3d3e81d2a9d7b12  packages/cli/package.json
 098a34b8cc67543bbf624e5e510866dced9d40fd68da116add33c3b75684d9b3  packages/cli/src/cli.integration.test.ts
 c2dcc0ea891751be6e1557e2a2ff7489544dbcd1a41a4c4e97c03ab0642f7a14  packages/cli/src/cli.ts
 3603d166162db8545685465fc14956e218ce293d9c86746f2394829588417431  packages/cli/src/core.test.ts
@@ -52,13 +52,13 @@ fd4fa4e8eb00534c6423dbe5efb5e312adb64cd1aa5e90893b96721c7a41acab  packages/cli/v
 ba66ab48e66ea8ecce875c53c8d8adcb33fc54a671c8548ba3d6ab19c74a6ffb  packages/cli/vendor/i18n/routing.ts
 e07aedcc095f4877595e4d9e9d6db64e9c0bc35184210f1c1b8cb091a70dcc99  packages/cli/vitest.config.ts
 b6db198713b0ef5eee33efdc00693e7e8d6837250fd0b7b362534ffb89f2ad81  packages/local-tools/LICENSE
-b82465c25351381532816d5157ac611fb460a931b1942a29364f3cc1fcca9436  packages/local-tools/README.md
+f7c6d34a912a7453eda5abc8d2d9e6890dd5517a0f5d344adf52cd0ed9813f71  packages/local-tools/README.md
 853d731e30bc89cd297769829430bc42ad88625ca912291e51898d252419796f  packages/local-tools/build.mjs
-b035a5e9454a0f925e135100061d8e509306ae05ac687f4beb254c667c363c02  packages/local-tools/package.json
+1376677c3d08d6f33783482acc2e4b0363cd995ca1c2176b266fcdb4e1fcc150  packages/local-tools/package.json
 33ea70f924d1f28fbf95c620fa6bc0b0e6251848e32f2f9b8485884e6e95feda  packages/local-tools/src/cli.mjs
 5c99768efa051b8f97d1db04733023a4777cd64babbda17457949409be7b462b  packages/local-tools/src/core.mjs
 cd9e654d73366dc996a555ddda04d01e355a4d18ccdc540da2ee6cc00827354b  packages/local-tools/src/json-core.mjs
 231ca717bd6c4a788a3c894114f38e72aa0f0a8d985a57080f05c92bab3debf5  packages/local-tools/src/mcp.mjs
-f831c1c0779fa281ba919561af71ec009fd102b7a1f6eb39e82c197f2161f7b2  packages/local-tools/test/interfaces.test.mjs
+2d7537fd8b47af7f6027b895ed099fe1cba37f369f8b229bc2d7da10ff3ae074  packages/local-tools/test/interfaces.test.mjs
 e004d11f015d3bbb133cd0411a44d3a534d50f35deba1b7abb62cb84a0271917  packages/local-tools/vendor/features/tool-runtime/native-coding/definitions.ts
 35030eb5b6864d121c9e77b4c7b4716cae2ab8f17fcfb4e5d3ad7d7e3c7fe5c3  packages/local-tools/vendor/features/tool-runtime/native-coding/json-tree.ts

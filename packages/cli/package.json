@@ -1,7 +1,6 @@
 {
   "name": "@toolars/cli",
   "version": "0.1.0",
-  "private": true,
   "description": "Local-first developer CLI and stdio MCP server for Toolars: hash, Base64, JWT decode, UUID/ULID, timestamp, cron and URL encode/decode. Zero runtime dependencies, no network access, no telemetry.",
   "license": "MIT",
   "type": "module",

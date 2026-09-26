@@ -1,7 +1,7 @@
-# Toolars local tools — private, MIT-licensed experiment
+# Toolars local tools — MIT-licensed local utilities
 
-An internal experiment, not published to npm; `private: true` keeps it that way
-and is the owner's publication switch, while the source is MIT-licensed (see
+Published as `@toolars/local-tools` on npm (`npm install -g @toolars/local-tools`,
+then `toolars-local` and `toolars-local-mcp`); the source is MIT-licensed (see
 `LICENSE`). The package has no runtime
 third-party dependencies and contains no website, account, network service, or
 telemetry.
@@ -86,14 +86,12 @@ path on your machine:
 }
 ```
 
-#### `toolars-mcp` is also `@toolars/cli`'s bin name
+#### Bin names
 
-Both packages install an executable named `toolars-mcp`. If a single
-`node_modules` holds both, there is only one `node_modules/.bin/toolars-mcp`
-symlink and it points at whichever package was installed last; nothing resolves
-it per package. When both are installed, prefer the explicit path shown above
-over the bare bin name. `toolars-local` does not collide with anything. The
-package is not on npm yet.
+This package installs two executables: `toolars-local` for the CLI and
+`toolars-local-mcp` for the stdio MCP server. Neither collides with
+`@toolars/cli`, whose executables are `toolars` and `toolars-mcp`. The
+explicit path shown above still works regardless of bin naming.
 
 Only protocol `2025-11-25` is supported. Send `initialize` first, confirm the
 returned version is acceptable, then send `notifications/initialized`; the
@@ -124,5 +122,5 @@ authorization.
 Current acceptance covers the handshake, capability listing, successful and
 failed calls, boundary tests with an independent raw stdio client, and
 installation outside the checkout. No GUI client (Claude, ChatGPT, or another)
-has been signed into or configured, and nothing has been published to npm or to
-an MCP directory.
+has been signed into or configured, and the package has not been submitted to
+any MCP directory yet.

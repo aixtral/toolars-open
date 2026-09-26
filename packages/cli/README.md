@@ -2,8 +2,8 @@
 
 A zero-dependency command-line interface and local [MCP](https://modelcontextprotocol.io) server exposing the Developer-tool subset of [Toolars](https://toolars.com) (Next.js 16 + React 19, local-first). Every operation reuses the website's pure runtime cores from `src/features/tool-runtime/`, so CLI, MCP server, and website produce identical results, locked in by the shared test vectors in `src/core.test.ts`.
 
-The package is private (`private: true`) and is not published to npm; that field
-is the owner's publication switch, not a statement about the license.
+Published as `@toolars/cli` on npm: `npm install -g @toolars/cli` gives you the
+`toolars` CLI and the `toolars-mcp` stdio MCP server.
 
 ## Privacy
 
@@ -146,17 +146,15 @@ corepack pnpm test
 - `src/cli.integration.test.ts` — spawns the built `dist/cli.mjs` and asserts stdout/stderr/exit codes.
 - `src/mcp.protocol.test.ts` — drives the MCP server over in-memory stdio pipes: handshake, `tools/list`, `tools/call` success/failure, and JSON-RPC error codes.
 
-## Installing from npm, and the `toolars-mcp` bin name
+## Installing from npm
 
-The package is not on npm yet. Once published, `npm install -g @toolars/cli` (or
-a local `npm install @toolars/cli`) provides two executables: `toolars` for the
-CLI and `toolars-mcp` for the stdio MCP server.
+`npm install -g @toolars/cli` (or a local `npm install @toolars/cli`) provides
+two executables: `toolars` for the CLI and `toolars-mcp` for the stdio MCP
+server.
 
-`@toolars/local-tools`, the sibling package, declares a `toolars-mcp` bin as
-well. If both packages end up in the same `node_modules`, there is only one
-`node_modules/.bin/toolars-mcp` symlink and it points at whichever package was
-installed last. Nothing resolves this per package. When both are present,
-configure MCP clients with an explicit path instead of the bare bin name:
+`@toolars/local-tools`, the sibling package, uses `toolars-local` and
+`toolars-local-mcp`, so nothing collides. Configuring MCP clients with an
+explicit path also works:
 
 ```json
 {
@@ -169,9 +167,7 @@ configure MCP clients with an explicit path instead of the bare bin name:
 }
 ```
 
-`toolars` and `toolars-local` do not collide with each other.
-
 ## License
 
-MIT — see `LICENSE`. The package stays `private: true` and is not published to
-npm; the MIT grant covers the source in this repository.
+MIT — see `LICENSE`. The package is published to npm as `@toolars/cli`; the MIT
+grant covers the source in this repository.

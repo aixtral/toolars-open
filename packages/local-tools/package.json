@@ -1,7 +1,6 @@
 {
   "name": "@toolars/local-tools",
   "version": "0.1.0-experimental.1",
-  "private": true,
   "description": "Toolars local-tools experiment: a local stdio CLI and MCP server for strict JSON formatting and SHA-256 hashing. Zero runtime dependencies, no network access, no telemetry.",
   "license": "MIT",
   "type": "module",
@@ -11,7 +10,7 @@
   "exports": "./src/core.mjs",
   "bin": {
     "toolars-local": "./src/cli.mjs",
-    "toolars-mcp": "./src/mcp.mjs"
+    "toolars-local-mcp": "./src/mcp.mjs"
   },
   "files": [
     "src",

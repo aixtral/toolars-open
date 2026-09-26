@@ -69,7 +69,10 @@ The run writes `privacy-proof-receipt.json` and exits non-zero if an unexpected 
 canary marker, or if any request uploads data. Disclosed shell requests are counted
 separately. A missing or changing release identity also prevents a verified result.
 
-Both packages remain private and unpublished on npm.
+Both packages are published on npm under the `@toolars` scope:
+`npm install -g @toolars/cli` gives you `toolars` + `toolars-mcp`, and
+`npm install -g @toolars/local-tools` gives you `toolars-local` +
+`toolars-local-mcp`. The bins do not collide.
 
 ## Running the CLI and MCP server
 

@@ -281,10 +281,15 @@ test("packed artifact installs offline outside checkout and provides npm import,
     const manifest = JSON.parse(
       await readFile(join(root, "package.json"), "utf8"),
     );
-    assert.equal(manifest.private, true);
-    // The packages were MIT-licensed in the open-source decision (option B);
-    // `private: true` still keeps them off npm, which the line above pins.
+    // Published to npm since 0.1.0-experimental.1: the manifest must stay
+    // publishable (no `private` flag), MIT-licensed, and the MCP bin keeps its
+    // package-scoped name so it never collides with @toolars/cli.
+    assert.equal(manifest.private, undefined);
     assert.equal(manifest.license, "MIT");
+    assert.deepEqual(Object.keys(manifest.bin).sort(), [
+      "toolars-local",
+      "toolars-local-mcp",
+    ]);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
