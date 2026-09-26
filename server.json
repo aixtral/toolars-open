@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
   "name": "io.github.aixtral/toolars",
   "title": "Toolars",
-  "description": "Local-first developer utilities from toolars.com: hash, Base64, JWT decode, UUID/ULID, timestamp, cron and URL encode/decode. All computation runs locally in Node.js — no network calls, no file access, no telemetry.",
+  "description": "Local-first dev utilities: hash, base64, JWT, UUID, cron, URL codec. No network or telemetry.",
   "repository": {
     "url": "https://github.com/aixtral/toolars-open",
     "source": "github"
