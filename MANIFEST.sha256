@@ -1,7 +1,7 @@
 # Toolars open-source distribution manifest
-# generated: 2026-09-26T06:49:38.878Z
+# generated: 2026-09-26T07:06:34.310Z
 # files: 58
-# bytes: 429657
+# bytes: 429811
 # canonical harness: scripts/capture-privacy-proof.mjs
 # harness patches: usage-header, configuration-block, fixture-path, environment-description, harness-metadata, crypto-import
 
@@ -24,9 +24,9 @@ b9c345204fb8de6de2bd622351036b824c7330803d545d5a0eb4d247213fe241  evidence-harne
 b6db198713b0ef5eee33efdc00693e7e8d6837250fd0b7b362534ffb89f2ad81  packages/cli/LICENSE
 c3c5f2161afc5941ad98114a72f449f6b8f969b65414d052b2b6b4773800cd74  packages/cli/README.md
 6d4aa3e95b5063ae9d9115cca9a674eebe5471066cf01ea226e249eaae293fbf  packages/cli/build.mjs
-8a36bb434bafe5f0bf2c0a4ff847458fbff665ff086ac0f7665e1af943163e6e  packages/cli/dist/cli.mjs
-05193a146cd339d0f442dcd9f91dd162385cf676c446c9a7b461d33a9958ec1b  packages/cli/dist/mcp.mjs
-d44ce09f6255398e45a66674090d9a4a6c64c283092ee28fa3d3e81d2a9d7b12  packages/cli/package.json
+1b7d11bd31d86887409ccd0f34e3bae4a50d9de361c166f74f2dc7740df30e20  packages/cli/dist/cli.mjs
+fc4a0d014eec6f9bd0c7d866a7f9d577642a4232e54d0b7d9bef55a6e4d8062a  packages/cli/dist/mcp.mjs
+d248b7374a102cebec6d84792cfbb6ff9648a70bdb6a3194f84a9e7029261974  packages/cli/package.json
 098a34b8cc67543bbf624e5e510866dced9d40fd68da116add33c3b75684d9b3  packages/cli/src/cli.integration.test.ts
 c2dcc0ea891751be6e1557e2a2ff7489544dbcd1a41a4c4e97c03ab0642f7a14  packages/cli/src/cli.ts
 3603d166162db8545685465fc14956e218ce293d9c86746f2394829588417431  packages/cli/src/core.test.ts
@@ -62,4 +62,4 @@ cd9e654d73366dc996a555ddda04d01e355a4d18ccdc540da2ee6cc00827354b  packages/local
 2d7537fd8b47af7f6027b895ed099fe1cba37f369f8b229bc2d7da10ff3ae074  packages/local-tools/test/interfaces.test.mjs
 e004d11f015d3bbb133cd0411a44d3a534d50f35deba1b7abb62cb84a0271917  packages/local-tools/vendor/features/tool-runtime/native-coding/definitions.ts
 35030eb5b6864d121c9e77b4c7b4716cae2ab8f17fcfb4e5d3ad7d7e3c7fe5c3  packages/local-tools/vendor/features/tool-runtime/native-coding/json-tree.ts
-24f30259e59fea322cb79993065eb226418093a172d35c443d95711063db6240  server.json
+de2d22447e059702e8b87f262278ebe561a10ab34bf054befe236e38f6adb916  server.json

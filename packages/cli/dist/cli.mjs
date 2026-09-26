@@ -1441,7 +1441,7 @@ function renderCron(output) {
 // packages/cli/src/mcp.ts
 var PROTOCOL = "2025-11-25";
 var SERVER_NAME = "toolars-cli";
-var VERSION = "0.1.0";
+var VERSION = "0.1.1";
 var MAX_FRAME_BYTES = 1600 * 1024;
 var TIME_ZONE_DESCRIPTION = "One of UTC, local, America/New_York, Europe/London, Europe/Berlin, Asia/Shanghai, Asia/Tokyo, Asia/Seoul, Asia/Kolkata, Australia/Sydney.";
 var LOCAL_NOTE = "Runs entirely locally; no network or filesystem access. Input and result enter the MCP client context and may be sent to its model provider.";
@@ -1878,7 +1878,7 @@ if (false) {
 }
 
 // packages/cli/src/cli.ts
-var VERSION2 = "0.1.0";
+var VERSION2 = "0.1.1";
 var USAGE = `toolars ${VERSION2} \u2014 local-first developer utilities (https://toolars.com)
 
 Usage:
