@@ -116,6 +116,9 @@ jobs:
                 ;;
             esac
           done
+      - name: Verify the receipt still matches the served deployment
+        working-directory: evidence-harness
+        run: node verify-live-privacy-proof.mjs --receipt privacy-proof-receipt.json
       - name: Upload the receipt
         if: always()
         uses: actions/upload-artifact@v4

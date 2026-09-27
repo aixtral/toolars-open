@@ -77,3 +77,14 @@ an offline-runtime test.
 from someone who is not us. If your run produces a different outcome — a
 cross-origin host we have not disclosed, an upload, or a canary leak — that is
 the finding. Open an issue with the receipt attached.
+
+## 2026-09-27 six-scenario capture
+
+`2026-09-27-release-167525f512a4fa8a.json` was produced locally by the canonical
+harness against `https://toolars.com`, not by GitHub Actions. All six scenarios
+completed with zero recorded uploads and canary leaks. The post-run identity
+check at 07:50 UTC matched release `167525f512a4fa8a` and served source
+`2f15529d237e4e29b6d4d9279a2b029ed43eceaf`. This archive does not verify the
+subsequent analytics changes or any later deployment. The initial attempt had
+transport/wait failures and was inconclusive; only the completed rerun is
+archived here. The full current browser/network environment is in the receipt.

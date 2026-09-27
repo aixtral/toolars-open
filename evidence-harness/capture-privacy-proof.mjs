@@ -2,8 +2,8 @@
  * Toolars privacy-proof capture harness.
  *
  * Re-runnable evidence producer for the /privacy-proof "verify it yourself"
- * section. For four representative scenarios — PNG and HEIC conversions,
- * the local OCR engine, and a PDF rotation — it drives the real tool workspaces
+ * section. For six representative scenarios — PNG and HEIC conversions,
+ * the local OCR engine, PDF rotation, CSV relay and a custom chain — it drives the real tool workspaces
  * in headless Chromium while recording every network request through the
  * Playwright request events, including requests from dedicated Workers:
  *
@@ -539,6 +539,98 @@ async function capturePdfRotation(browser) {
   };
 }
 
+/** Synthetic CSV -> explicit file relay -> XLSX, with a marker in cell data. */
+async function captureCsvRelay(browser) {
+  const canary = `tlrs-proof-${Math.random().toString(36).slice(2, 12)}`;
+  const context = await browser.newContext({ serviceWorkers: "block" });
+  try {
+    const page = await context.newPage();
+    const requests = attachNetworkRecorder(page, canary);
+    await navigateToCapturePage(page, `${baseUrl}/tools/csv-workbench`, {
+      waitUntil: "domcontentloaded",
+    });
+    await page.locator('[data-runtime-interactive="true"]').waitFor();
+    requests.length = 0;
+    await page.locator('input[type="file"]').setInputFiles({
+      name: "privacy-proof.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from(`name,total\n${canary},1\n${canary},1\n`),
+    });
+    await page.getByRole("button", { name: "Apply", exact: true }).click();
+    await page
+      .locator("[data-relay-next-steps]")
+      .getByRole("button", { name: /Excel/ })
+      .click();
+    await page.waitForURL(/\/tools\/excel-converter$/u);
+    await page.locator('[data-runtime-interactive="true"]').waitFor();
+    await page
+      .locator("[data-relay-receiver]")
+      .getByRole("button", { name: "Use this file" })
+      .click();
+    await page.getByRole("button", { name: "Convert", exact: true }).click();
+    const result = await downloadResult(page, "Download");
+    return {
+      id: "csv-excel-relay",
+      toolSlug: "csv-workbench",
+      canary,
+      window:
+        "CSV dedupe, explicit in-tab file relay and XLSX download; includes route assets.",
+      outputFile: result.suggestedFilename,
+      ...summarize(requests),
+      requests: [...requests],
+    };
+  } finally {
+    await context.close();
+  }
+}
+
+/** Text stays in the canvas; copy takes a result, sharing is not exercised. */
+async function captureCustomChain(browser) {
+  const canary = `tlrs-proof-${Math.random().toString(36).slice(2, 12)}`;
+  const context = await browser.newContext({
+    serviceWorkers: "block",
+    permissions: ["clipboard-read", "clipboard-write"],
+  });
+  try {
+    const page = await context.newPage();
+    const requests = attachNetworkRecorder(page, canary);
+    await navigateToCapturePage(page, `${baseUrl}/workflows/custom`, {
+      waitUntil: "domcontentloaded",
+    });
+    await page
+      .getByRole("combobox", { name: "Tool", exact: true })
+      .first()
+      .selectOption("case-converter");
+    await page
+      .getByRole("combobox", { name: "Add step", exact: true })
+      .selectOption("url-slug-generator");
+    requests.length = 0;
+    await page
+      .getByPlaceholder("Type or paste the text to transform")
+      .fill(canary);
+    await page.getByRole("button", { name: "Run chain", exact: true }).click();
+    await page
+      .getByText("Chain completed — every step finished.", { exact: true })
+      .waitFor();
+    if ((await page.locator("output").textContent()) !== canary)
+      throw new Error("Custom chain output mismatch");
+    await page.getByRole("button", { name: "Copy text", exact: true }).click();
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    if (copied !== canary) throw new Error("Custom chain clipboard mismatch");
+    return {
+      id: "custom-text-chain",
+      toolSlug: "custom",
+      canary,
+      window:
+        "Two-step text chain and explicit result copy after canvas warm-up.",
+      ...summarize(requests),
+      requests: [...requests],
+    };
+  } finally {
+    await context.close();
+  }
+}
+
 /**
  * Tracked so the error path can close Chromium. Without this the process
  * stays alive on a thrown scenario (an open browser keeps the event loop
@@ -604,6 +696,8 @@ async function main() {
     captureHeicConversion,
     captureOcrRun,
     capturePdfRotation,
+    captureCsvRelay,
+    captureCustomChain,
   ]) {
     process.stdout.write(`[privacy-proof] ${capture.name} ... `);
     try {

@@ -1,27 +1,29 @@
 # Toolars open-source distribution manifest
-# generated: 2026-09-27T03:50:32.902Z
-# files: 59
-# bytes: 430821
+# generated: 2026-09-27T08:15:22.754Z
+# files: 61
+# bytes: 451558
 # canonical harness: scripts/capture-privacy-proof.mjs
 # harness patches: usage-header, configuration-block, fixture-path, environment-description, harness-metadata, crypto-import
 
 6b6d10ab9c23b2e4debd578dce164e7913efb5c1aaa1bbb36e38415b259e8b5a  .github/ISSUE_TEMPLATE/chain-recipe.md
-32b4224be0a10755643734c4f0853ee9f52fb5a7d0128bab79c051dff47ea663  .github/workflows/privacy-proof.yml
+dcfd341929d8fa6f3931d475e96100d594b1fa9de1d3bcacf7400b78e920c89a  .github/workflows/privacy-proof.yml
 a78f055390a5228a8ee2185acb4914d367adfe1985f52211a87fe03634c8a373  .gitignore
 b6db198713b0ef5eee33efdc00693e7e8d6837250fd0b7b362534ffb89f2ad81  LICENSE
 1276a5548284f48186cad82eab128aea5a024c81d15ec3ae65e84f09f5a621b0  README.md
 3173b868cecd03ccfeb585ebd47da04171b500d75e52088a54dec257ea5ec2bd  SECURITY.md
 3cbcb16f27329556ae2b4c175a5d3220e05fee04c45a4cbc37c4c61bf7b4248e  THIRD-PARTY.md
-099238d8f00a1355f620376e8594dd0f215e187c99619967ff1b8daf3b3a34bf  evidence-harness/README.md
-b9c345204fb8de6de2bd622351036b824c7330803d545d5a0eb4d247213fe241  evidence-harness/capture-privacy-proof.mjs
+21acf22217e3d57356d067532f5754c21e6012ffcd4dc30bbe2a3c5e1cf460b8  evidence-harness/README.md
+65658373392c3fe21cb528adc2b59e768737ae6d956238fb90d60109efbbb40f  evidence-harness/capture-privacy-proof.mjs
 2d5c73d21d1a3949c83a9413ced4af68d9ffb5d70f2c97ba0933eada201598e3  evidence-harness/fixtures/PROVENANCE.md
 30aa4a8755694b35ef352e6037dcedd82c52b8fac9b236aacbd9bc0d48888823  evidence-harness/fixtures/heic/gradient-96x64.heic
-3f94ce7957952646e13cd3f1d67f33a05dc8bd8308d5b2356489340f8e69de86  evidence-harness/lib/capture-release.mjs
+a100bfba312b4453892be0d7b237aa3f141c159005161d0b3383d97ce4a40c0c  evidence-harness/lib/capture-release.mjs
 25bac1e59bc4ac672423e35f352a5e1911ea0f90972a095161179e3b6cc26af7  evidence-harness/lib/sized-image-files.mjs
 1934fd0544ecc9929c0a3bd34a88df69cf67bf19e5382c82c340de22a7031714  evidence-harness/package.json
 3a9e6d991afac3362e9b6da53cb16a8242f79b625bcb25996971cf4288b98b62  evidence-harness/receipts/2026-09-25-live.json
 78e105be963ae33e6cd4a500d579b854a342a1de80464fe026db550c3666568b  evidence-harness/receipts/2026-09-25-release-641c63e4052817df.json
-76a62245b974859eb89ecdcf627bd7098b840b8e2c592b953afb8dffed2425aa  evidence-harness/receipts/README.md
+22f5db8996083c134840b77ceb3b05c15517343b44cefa7c58804e568423d56a  evidence-harness/receipts/2026-09-27-release-167525f512a4fa8a.json
+c0132874b1d01742f73b4649e60ecbe6f10a7f23423f6eecfee73da9d65e8033  evidence-harness/receipts/README.md
+16a629f676383da87b0733c82b88d901506afaacb21e54050ea64a04aa2592b2  evidence-harness/verify-live-privacy-proof.mjs
 b6db198713b0ef5eee33efdc00693e7e8d6837250fd0b7b362534ffb89f2ad81  packages/cli/LICENSE
 c3c5f2161afc5941ad98114a72f449f6b8f969b65414d052b2b6b4773800cd74  packages/cli/README.md
 6d4aa3e95b5063ae9d9115cca9a674eebe5471066cf01ea226e249eaae293fbf  packages/cli/build.mjs

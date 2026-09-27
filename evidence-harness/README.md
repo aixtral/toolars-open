@@ -39,7 +39,7 @@ on failure so you can inspect what crossed the boundary.
 
 ## What it actually does
 
-Four scenarios, each in a fresh browser context with **service workers
+Six scenarios, each in a fresh browser context with **service workers
 blocked**:
 
 | Scenario id               | Tool                                | What is driven                                                                                                                              |
@@ -48,6 +48,23 @@ blocked**:
 | `image-tool-heic-convert` | Image Format Converter (HEIC input) | HEIC → JPEG twice: the first run fetches the lazy ~3.3 MB libheif decoder, the measured run must issue **zero** requests                    |
 | `ocr-language-pack`       | Image to Text (OCR)                 | English OCR, then English + Simplified Chinese; language packs must arrive only from the site's origin, and the recognized text is asserted |
 | `pdf-tool-rotate`         | PDF Rotator                         | Load the bundled sample, rotate, download                                                                                                   |
+
+The additional `csv-excel-relay` scenario cleans synthetic CSV, explicitly
+accepts an in-tab file handoff and downloads XLSX. `custom-text-chain` runs a
+two-step text chain and checks its copied output. Both put a random marker in
+the input and inspect network requests; route/engine asset downloads are not
+misreported as file uploads.
+
+After a successful production capture, bind it to the release still served:
+
+```bash
+node verify-live-privacy-proof.mjs --receipt privacy-proof-receipt.json
+```
+
+Optionally set `EXPECTED_SOURCE_COMMIT` to the full website source SHA. The
+public repository's SHA identifies this harness, not the deployed website.
+A deployment change, missing scenario or inconclusive capture fails this check.
+A green historical badge alone never proves a newer deployment.
 
 Then it asserts that across every measured window:
 
@@ -143,9 +160,9 @@ such; it is not independent verification.
 Stated plainly, because a verification tool that oversells itself is worse than
 none:
 
-- **Only four scenarios, not 102 tools.** Absence of evidence for the other 98
-  tools is not a result about them. Extend `--scenarios` only by adding code.
-- **Not every input type or edge case** within these four tools (unusual
+- **Only six scenarios, not the entire catalog.** Unmeasured tools have no
+  result from this capture. Adding coverage requires implementing new scenarios.
+- **Not every input type or edge case** within these measured flows (unusual
   encodings, corrupt files, very large files, cancellation paths).
 - **Not a statement about the site shell.** It measures tool workspaces. The
   header search, the newsletter form, account sync, and the page-view analytics
@@ -188,5 +205,5 @@ MIT — see `../LICENSE`.
 Every run records the response's `X-Toolars-Release` before and after capture and
 on each measured tool navigation. Missing identity or different revisions makes
 the result inconclusive. `release.revision` identifies the tested deployment;
-it is never taken from the local checkout. This four-scenario network capture
+it is never taken from the local checkout. This six-scenario network capture
 does not validate all tools or offline operation.

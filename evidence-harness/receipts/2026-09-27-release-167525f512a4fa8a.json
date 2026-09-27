@@ -1,0 +1,406 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-27",
+  "release": {
+    "revision": "167525f512a4fa8a",
+    "stable": true,
+    "observations": [
+      {
+        "path": "/",
+        "revision": "167525f512a4fa8a"
+      },
+      {
+        "path": "/tools/image-format-converter",
+        "revision": "167525f512a4fa8a"
+      },
+      {
+        "path": "/tools/image-format-converter",
+        "revision": "167525f512a4fa8a"
+      },
+      {
+        "path": "/tools/image-to-text-ocr",
+        "revision": "167525f512a4fa8a"
+      },
+      {
+        "path": "/tools/pdf-rotator",
+        "revision": "167525f512a4fa8a"
+      },
+      {
+        "path": "/tools/csv-workbench",
+        "revision": "167525f512a4fa8a"
+      },
+      {
+        "path": "/workflows/custom",
+        "revision": "167525f512a4fa8a"
+      },
+      {
+        "path": "/",
+        "revision": "167525f512a4fa8a"
+      }
+    ]
+  },
+  "environment": {
+    "description": "Headless Chromium against a production standalone build, recording every request (including dedicated Web Worker fetches); service workers blocked, so repeat asset loads are served by the browser's immutable HTTP cache and produce zero recorded requests; Toolars analytics is disabled on local and preview origins; no analytics traffic is expected there, including builds using a synthetic test key.",
+    "browser": "Chromium 151.0.7922.34 (headless)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+    "os": "darwin arm64",
+    "cpu": "Apple M3 Ultra",
+    "node": "v24.19.0",
+    "baseUrl": "https://toolars.com"
+  },
+  "harness": {
+    "script": "scripts/capture-privacy-proof.mjs"
+  },
+  "outcome": "verified",
+  "violations": [],
+  "unavailable": [],
+  "scenarios": [
+    {
+      "id": "image-tool-convert",
+      "toolSlug": "image-format-converter",
+      "window": "One full conversion plus download, after page and runtime warm-up.",
+      "canary": "tlrs-proof-hkg8nfsabg",
+      "outputFile": "toolars-proof-tlrs-proof-hkg8nfsabg.jpg",
+      "totalRequests": 0,
+      "sameOriginRequests": 0,
+      "crossOriginRequests": 0,
+      "disclosedShellRequests": 0,
+      "unexpectedCrossOriginRequests": 0,
+      "unexpectedHosts": [],
+      "uploadRequests": 0,
+      "canaryLeaks": 0,
+      "thirdPartyHosts": [],
+      "requests": []
+    },
+    {
+      "id": "image-tool-heic-convert",
+      "toolSlug": "image-format-converter",
+      "window": "Second HEIC → JPEG conversion plus download, after the lazy decoder warm-up fetch.",
+      "canary": "tlrs-proof-9obtmue6wm",
+      "outputFile": "toolars-proof-tlrs-proof-9obtmue6wm.jpg",
+      "totalRequests": 0,
+      "sameOriginRequests": 0,
+      "crossOriginRequests": 0,
+      "disclosedShellRequests": 0,
+      "unexpectedCrossOriginRequests": 0,
+      "unexpectedHosts": [],
+      "uploadRequests": 0,
+      "canaryLeaks": 0,
+      "thirdPartyHosts": [],
+      "decoderAssets": {
+        "window": "First HEIC conversion: the lazy libheif decoder download.",
+        "sameOriginOnly": true,
+        "paths": [
+          "/generated/runtime/7879e1c92e1bdb08/libheif.js",
+          "/generated/runtime/e4aa8333fbe55ec7/libheif.wasm",
+          "/generated/runtime/6c728441042ea88c/heic-decode-worker.js"
+        ]
+      },
+      "requests": []
+    },
+    {
+      "id": "ocr-language-pack",
+      "toolSlug": "image-to-text-ocr",
+      "window": "Second recognition pass, after the engine and language pack warm-up fetch.",
+      "recognizedTextMatches": true,
+      "totalRequests": 3,
+      "sameOriginRequests": 3,
+      "crossOriginRequests": 0,
+      "disclosedShellRequests": 0,
+      "unexpectedCrossOriginRequests": 0,
+      "unexpectedHosts": [],
+      "uploadRequests": 0,
+      "canaryLeaks": 0,
+      "thirdPartyHosts": [],
+      "languagePack": {
+        "language": "chi_sim",
+        "window": "Selecting Simplified Chinese downloads its language pack once, then stays cached.",
+        "totalRequests": 1,
+        "sameOriginRequests": 1,
+        "crossOriginRequests": 0,
+        "disclosedShellRequests": 0,
+        "unexpectedCrossOriginRequests": 0,
+        "unexpectedHosts": [],
+        "uploadRequests": 0,
+        "canaryLeaks": 0,
+        "thirdPartyHosts": [],
+        "sameOriginAssetPaths": [
+          "/generated/runtime/89456b34c2769c9a/chi_sim.traineddata.gz"
+        ]
+      },
+      "multiLanguage": {
+        "language": "chi_sim",
+        "window": "Second Simplified Chinese recognition pass, after the pack download.",
+        "recognizedTextMatches": true,
+        "totalRequests": 3,
+        "sameOriginRequests": 3,
+        "crossOriginRequests": 0,
+        "disclosedShellRequests": 0,
+        "unexpectedCrossOriginRequests": 0,
+        "unexpectedHosts": [],
+        "uploadRequests": 0,
+        "canaryLeaks": 0,
+        "thirdPartyHosts": []
+      },
+      "sameOriginAssetPaths": [
+        "/generated/runtime/775a35df6f2ae100/tesseract-core-lstm.wasm.js",
+        "/generated/runtime/89456b34c2769c9a/chi_sim.traineddata.gz",
+        "/generated/runtime/d8438d6a4fba7bc3/eng.traineddata.gz",
+        "/generated/runtime/e4d26dedc913c87f/worker.min.js"
+      ],
+      "requests": [
+        {
+          "seq": 45,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/generated/runtime/e4d26dedc913c87f/worker.min.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 46,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/generated/runtime/775a35df6f2ae100/tesseract-core-lstm.wasm.js",
+          "resourceType": "other",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 47,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/generated/runtime/d8438d6a4fba7bc3/eng.traineddata.gz",
+          "resourceType": "fetch",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        }
+      ]
+    },
+    {
+      "id": "pdf-tool-rotate",
+      "toolSlug": "pdf-rotator",
+      "window": "Rotate the bundled sample and download the result, after warm-up.",
+      "outputFile": "sample-rotation-rotated.pdf",
+      "totalRequests": 3,
+      "sameOriginRequests": 3,
+      "crossOriginRequests": 0,
+      "disclosedShellRequests": 0,
+      "unexpectedCrossOriginRequests": 0,
+      "unexpectedHosts": [],
+      "uploadRequests": 0,
+      "canaryLeaks": 0,
+      "thirdPartyHosts": [],
+      "requests": [
+        {
+          "seq": 49,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/_next/static/immutable/chunks/3qx2uv2ad9h6w.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 50,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/_next/static/immutable/chunks/3648bz3lqo_vo.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 51,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/_next/static/immutable/chunks/1mgephfg-6xm4.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        }
+      ]
+    },
+    {
+      "id": "csv-excel-relay",
+      "toolSlug": "csv-workbench",
+      "canary": "tlrs-proof-d7cu3ay3v8",
+      "window": "CSV dedupe, explicit in-tab file relay and XLSX download; includes route assets.",
+      "outputFile": "toolars-converted.xlsx",
+      "totalRequests": 14,
+      "sameOriginRequests": 14,
+      "crossOriginRequests": 0,
+      "disclosedShellRequests": 0,
+      "unexpectedCrossOriginRequests": 0,
+      "unexpectedHosts": [],
+      "uploadRequests": 0,
+      "canaryLeaks": 0,
+      "thirdPartyHosts": [],
+      "requests": [
+        {
+          "seq": 45,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/_next/static/immutable/chunks/28gf7ahm64t1q.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 46,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/_next/static/immutable/chunks/3tbggousp8nxc.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 47,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/brand/buy-me-a-coffee-yellow.a72341bd3e0d.png?dpl=dpl_BtP7Evz5ThcGsAApyngoMtuF7t4F",
+          "resourceType": "image",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 48,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/_next/static/immutable/chunks/3qx2uv2ad9h6w.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 49,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/_next/static/immutable/chunks/3648bz3lqo_vo.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 50,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/_next/static/immutable/chunks/1mgephfg-6xm4.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 51,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/generated/runtime/91260ea4f18539a2/csv-workbench-worker.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 52,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/tools/excel-converter?_rsc=GuP2NADFPtU7Bpgw",
+          "resourceType": "fetch",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 53,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/_next/static/immutable/chunks/2bgxky7ze_qqk.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 54,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/_next/static/immutable/chunks/1yrkukgoyipw5.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 55,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/_next/static/immutable/chunks/2d60byjskg_pv.css",
+          "resourceType": "stylesheet",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 56,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/_next/static/immutable/chunks/2t6l3r7lxm8a0.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 57,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/generated/runtime/094a2d7d92e9d441/excel-worker.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        },
+        {
+          "seq": 58,
+          "method": "GET",
+          "host": "toolars.com",
+          "path": "/generated/runtime/094a2d7d92e9d441/excel-worker.js",
+          "resourceType": "script",
+          "sameOrigin": true,
+          "hasPostData": false,
+          "carriedCanary": false
+        }
+      ]
+    },
+    {
+      "id": "custom-text-chain",
+      "toolSlug": "custom",
+      "canary": "tlrs-proof-u0elakd2s0",
+      "window": "Two-step text chain and explicit result copy after canvas warm-up.",
+      "totalRequests": 0,
+      "sameOriginRequests": 0,
+      "crossOriginRequests": 0,
+      "disclosedShellRequests": 0,
+      "unexpectedCrossOriginRequests": 0,
+      "unexpectedHosts": [],
+      "uploadRequests": 0,
+      "canaryLeaks": 0,
+      "thirdPartyHosts": [],
+      "requests": []
+    }
+  ]
+}
