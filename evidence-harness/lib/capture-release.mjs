@@ -1,3 +1,38 @@
+/**
+ * Scenario ids a complete privacy-proof capture must record, in execution
+ * order. Single source shared by the capture harness loop, the deployment
+ * proof check below, and the tests that keep the committed capture file and
+ * the receipt aligned with the harness — never hardcode the list elsewhere.
+ */
+export const PRIVACY_PROOF_SCENARIO_IDS = [
+  "image-tool-convert",
+  "image-tool-heic-convert",
+  "ocr-language-pack",
+  "pdf-tool-rotate",
+  "csv-excel-relay",
+  "custom-text-chain",
+];
+
+/** Describe the actual target without presenting a live run as a local build. */
+export function describeCaptureEnvironment(baseUrl) {
+  const target = new URL(baseUrl);
+  const local = ["localhost", "127.0.0.1", "[::1]"].includes(target.hostname);
+  const location =
+    target.origin === "https://toolars.com"
+      ? "the live production origin"
+      : local
+        ? "a local origin"
+        : "the configured remote origin";
+  return (
+    `Headless Chromium against ${location}, recording requests including dedicated Web Worker fetches. ` +
+    "Service workers are blocked; warmed resources may use the browser HTTP cache. " +
+    "Counts cover the scenario windows only, not every site request. " +
+    (target.origin === "https://toolars.com"
+      ? "Disclosed shell analytics traffic may be observed separately from tool processing."
+      : "Toolars analytics is disabled outside the production origin; this run does not verify production analytics isolation.")
+  );
+}
+
 /** Validate identity from the server actually measured, never the local tree. */
 export function captureReleaseObservation({ url, status, revision }, origin) {
   const target = new URL(url);
@@ -30,21 +65,15 @@ export function verifyDeploymentProof(
   headerRevision,
   expectedCommit,
 ) {
-  const required = [
-    "image-tool-convert",
-    "image-tool-heic-convert",
-    "ocr-language-pack",
-    "pdf-tool-rotate",
-    "csv-excel-relay",
-    "custom-text-chain",
-  ];
   if (
     capture.outcome !== "verified" ||
     capture.release?.stable !== true ||
     capture.environment?.baseUrl !== "https://toolars.com" ||
     (capture.violations?.length ?? 0) !== 0 ||
     (capture.unavailable?.length ?? 0) !== 0 ||
-    required.some((id) => !capture.scenarios?.some((s) => s.id === id))
+    PRIVACY_PROOF_SCENARIO_IDS.some(
+      (id) => !capture.scenarios?.some((s) => s.id === id),
+    )
   ) {
     throw new Error(
       "No complete verified production capture for the required six scenarios",

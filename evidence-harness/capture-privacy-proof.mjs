@@ -50,6 +50,8 @@ import { chromium } from "@playwright/test";
 import { makeSizedNoisePng } from "./lib/sized-image-files.mjs";
 import {
   captureReleaseObservation,
+  describeCaptureEnvironment,
+  PRIVACY_PROOF_SCENARIO_IDS,
   summarizeCaptureRelease,
 } from "./lib/capture-release.mjs";
 
@@ -240,7 +242,9 @@ async function captureImageConversion(browser) {
     mimeType: "image/png",
     buffer: makeSizedNoisePng(256 * KiB),
   });
-  await page.getByRole("radio", { name: /JPEG — smaller files/u }).check();
+  await page
+    .getByRole("combobox", { name: "Convert to", exact: true })
+    .selectOption("jpeg");
   await page
     .getByRole("button", { name: "Convert image", exact: true })
     .click();
@@ -255,7 +259,9 @@ async function captureImageConversion(browser) {
     mimeType: "image/png",
     buffer: makeSizedNoisePng(256 * KiB, canary),
   });
-  await page.getByRole("radio", { name: /JPEG — smaller files/u }).check();
+  await page
+    .getByRole("combobox", { name: "Convert to", exact: true })
+    .selectOption("jpeg");
   await page
     .getByRole("button", { name: "Convert image", exact: true })
     .click();
@@ -317,7 +323,9 @@ async function captureHeicConversion(browser) {
     mimeType: "image/heic",
     buffer: heicFixture,
   });
-  await page.getByRole("radio", { name: /JPEG — smaller files/u }).check();
+  await page
+    .getByRole("combobox", { name: "Convert to", exact: true })
+    .selectOption("jpeg");
   await page
     .getByRole("button", { name: "Convert image", exact: true })
     .click();
@@ -333,7 +341,9 @@ async function captureHeicConversion(browser) {
     mimeType: "image/heic",
     buffer: heicFixture,
   });
-  await page.getByRole("radio", { name: /JPEG — smaller files/u }).check();
+  await page
+    .getByRole("combobox", { name: "Convert to", exact: true })
+    .selectOption("jpeg");
   await page
     .getByRole("button", { name: "Convert image", exact: true })
     .click();
@@ -408,7 +418,11 @@ async function captureOcrRun(browser) {
     const [chooser] = await Promise.all([
       page.waitForEvent("filechooser"),
       page
-        .getByRole("button", { name: "Choose an image", exact: true })
+        // FileUpload changes the action after the first selection. Preserve
+        // the native chooser for both the initial and repeated measured runs.
+        .getByRole("button", {
+          name: /^(?:Choose an image|Replace image)$/u,
+        })
         .click(),
     ]);
     await chooser.setFiles({
@@ -680,6 +694,21 @@ process.on("unhandledRejection", (reason) => {
   process.exit(1);
 });
 
+/**
+ * The shared scenario list drives the run: every id in
+ * PRIVACY_PROOF_SCENARIO_IDS must have a capture here, and each capture must
+ * report the id it is registered under, so the committed evidence can never
+ * cover a different set than the tests and the deployment proof expect.
+ */
+const capturesByScenarioId = {
+  "image-tool-convert": captureImageConversion,
+  "image-tool-heic-convert": captureHeicConversion,
+  "ocr-language-pack": captureOcrRun,
+  "pdf-tool-rotate": capturePdfRotation,
+  "csv-excel-relay": captureCsvRelay,
+  "custom-text-chain": captureCustomChain,
+};
+
 async function main() {
   const browser = await chromium.launch({ headless: true });
   activeBrowser = browser;
@@ -691,17 +720,19 @@ async function main() {
   // Scenarios that could not be completed. These are NOT findings about the
   // site: they mean this run proves nothing about that scenario either way.
   const unavailable = [];
-  for (const capture of [
-    captureImageConversion,
-    captureHeicConversion,
-    captureOcrRun,
-    capturePdfRotation,
-    captureCsvRelay,
-    captureCustomChain,
-  ]) {
+  for (const scenarioId of PRIVACY_PROOF_SCENARIO_IDS) {
+    const capture = capturesByScenarioId[scenarioId];
+    if (!capture) {
+      throw new Error(`No capture implemented for scenario "${scenarioId}"`);
+    }
     process.stdout.write(`[privacy-proof] ${capture.name} ... `);
     try {
       const scenario = await capture(browser);
+      if (scenario.id !== scenarioId) {
+        throw new Error(
+          `${capture.name} reported id "${scenario.id}", expected "${scenarioId}"`,
+        );
+      }
       scenarios.push(scenario);
       console.log(
         `${scenario.totalRequests} requests, ` +
@@ -842,8 +873,7 @@ async function main() {
     capturedAt: new Date().toISOString().slice(0, 10),
     release,
     environment: {
-      description:
-        "Headless Chromium against the public site over the network, recording every request (including dedicated Web Worker fetches); service workers blocked, so repeat asset loads are served by the browser's HTTP cache and produce zero recorded requests. The site shell's own analytics request is outside the measured windows; this harness measures tool workspaces.",
+      description: describeCaptureEnvironment(baseUrl),
       browser: `Chromium ${browserVersion} (headless)`,
       userAgent,
       os: `${platform()} ${process.arch}`,
